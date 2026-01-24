@@ -12,8 +12,11 @@ body{
   width: 100%;
 }
 
+/* UPDATED HEADER */
 header { 
-  background-color: transparent;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -21,7 +24,10 @@ header {
   padding: 15px 20px;
   font-family: 'Arial', sans-serif;
   position: sticky;
-  z-index: 10;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
 header nav {
@@ -44,17 +50,19 @@ header nav {
 
 .nav {
   display: flex;
-  flex-wrap: wrap; /* Wrap nav items on small screens */
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
 }
+
 .nav a {
   text-decoration: none;
   margin-left: 10px;
   color:#333;
   font-size: 14px;
 }
+
 .logo {
   font-weight: bold;
   font-size: 18px;
@@ -68,6 +76,7 @@ header nav {
   text-decoration: none;
   font-size: 14px;
 }
+
 .btn.big {
   padding: 12px 20px;
   font-size: 15px;
@@ -79,9 +88,11 @@ header nav {
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 20px;
-  padding: 120px 15px 40px 15px; /* smaller padding for mobile */
+  padding: 120px 15px 40px 15px;
 }
+
 .hero span { color: #73ff00 }
+
 .hero p {
   max-width: 90%;
   margin: 20px auto;
@@ -98,12 +109,13 @@ header nav {
 }
 
 .title {
-  font-size: 28px; /* smaller for mobile */
+  font-size: 28px;
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 15px;
   color: #000;
 }
+
 .title .highlight {
   font-size: 1.2em;
   color: #5ed100;
@@ -155,7 +167,6 @@ header nav {
   border-color: #bbb;
 }
 
-/* Stats, benefits, how sections */
 .stats {
   display: flex;
   flex-wrap: wrap;
@@ -163,6 +174,7 @@ header nav {
   background: #fff;
   padding: 40px 10px;
 }
+
 .stats h2 { color: var(--green); }
 
 .benefits, .how {
@@ -170,7 +182,6 @@ header nav {
   padding: 40px 15px;
 }
 
-/* Cards grid */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -178,7 +189,6 @@ header nav {
   margin-top: 20px;
 }
 
-/* Steps */
 .steps {
   display: flex;
   flex-wrap: wrap;
@@ -187,26 +197,25 @@ header nav {
   gap: 10px;
   margin: 20px 0;
 }
+
 .step {
   background: #fff;
   padding: 10px 20px;
   border-radius: 30px;
 }
 
-/* Footer */
 footer {
   text-align: center;
   background: #0e1525;
   color: #fff;
   padding: 20px 10px;
 }
+
 footer a { color: var(--green); }
 
-/* Fade animation */
 .fade { opacity:0; transform:translateY(20px); transition:0.5s; }
 .fade.show { opacity:1; transform:translateY(0); }
 
-/* Form */
 .form-container { max-width: 95%; margin: 20px auto; padding: 10px; }
 
 .token-form {
@@ -241,7 +250,6 @@ footer a { color: var(--green); }
   width: 100%;
 }
 
-/* Topbar */
 .topbar {
   display: flex;
   flex-wrap: wrap;
@@ -252,7 +260,6 @@ footer a { color: var(--green); }
   border-bottom: 1px solid #eee;
 }
 
-/* Modal */
 .modal {
   position: fixed;
   inset: 0;
@@ -289,9 +296,14 @@ footer a { color: var(--green); }
 }
 
 .primary-btn { background: #f0b90b; border: none; }
-.secondary-btn { margin-top: 10px; background: transparent; border: 1px solid #333; color: #aaa; }
 
-/* Responsive tweaks for small screens */
+.secondary-btn {
+  margin-top: 10px;
+  background: transparent;
+  border: 1px solid #333;
+  color: #aaa;
+}
+
 @media (max-width: 768px) {
   .hero { font-size: 26px; padding: 100px 15px 30px 15px; }
   .title { font-size: 24px; }
@@ -309,6 +321,11 @@ footer a { color: var(--green); }
   .btn, .primary-button, .secondary-button { font-size: 13px; padding: 10px 14px; }
   .token-form { padding: 15px; }
   .modal-card { padding: 15px; }
+}
+
+.status {
+  margin-top: 12px;
+  font-size: 14px;
 }
 
 .status {
