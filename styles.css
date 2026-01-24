@@ -20,12 +20,14 @@ header {
   color: #131313;
   padding: 15px 20px;
   font-family: 'Arial', sans-serif;
-  position: relatives;
-  z-index: 1000;
+  position: sticky;
+  z-index: 10;
 }
 
 header nav {
   display: flex;
+  justify-content: space-between;
+  padding:20px 50px;
   gap: 30px;
 }
 
