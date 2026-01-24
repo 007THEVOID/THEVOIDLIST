@@ -9,6 +9,8 @@ body{
   font-family: Arial, sans-serif;
   background: white;
   color: #131313; /* white text for contrast */
+  width: 100%;
+  max-width: 900%;
 }
 
 heade { 
