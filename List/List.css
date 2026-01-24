@@ -2,6 +2,7 @@
 
 .page-header {
   width: 100%;
+  max-width: 900%
   background: rgb(234, 255, 203);
   padding: 20px;
   border-bottom:  rgba(0, 60, 255, 0.12);
@@ -42,6 +43,7 @@ body {
 
 /* Main Container */
 .listing-container {
+  width: 100%;
   max-width: 900px;
   margin: 50px auto;
   padding: 35px;
@@ -69,6 +71,7 @@ body {
 /* Form */
 .listing-form {
   width: 100%;
+  max-width: 900%;
 }
 
 .form-group {
@@ -113,7 +116,7 @@ textarea {
   gap: 18px;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
   .grid-2 {
     grid-template-columns: 1fr;
   }
@@ -123,6 +126,7 @@ textarea {
 .submit-btn {
   margin-top: 25px;
   width: 100%;
+  max-width: 900%;
   padding: 14px;
   border: none;
   border-radius: 10px;
@@ -213,4 +217,5 @@ textarea {
 /* reCAPTCHA spacing */
 .g-recaptcha {
   margin-top: 10px;
+
 }
