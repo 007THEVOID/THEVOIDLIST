@@ -1,33 +1,3 @@
-/* Header */
-
-.page-header {
-  width: 100%;
-  max-width: 900%
-  background: rgb(234, 255, 203);
-  padding: 20px;
-  border-bottom:  rgba(0, 60, 255, 0.12);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.back-btn {
- padding: 12px 25px;
- border: none;
- border-radius: 10px;
- font-size: 16px;
- cursor: pointer;
- transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; /* Smooth transitions for hover effects */
- font-weight: 600; 
- background-color: #5ed100; /* Orange background for the primary button */
- color: white;
-}
-
-.back-btn:hover {
-  color: #15803d;
-  text-decoration: underline;
-}
-
 /* Reset */
 * {
   box-sizing: border-box;
@@ -36,14 +6,45 @@
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
+/* Body */
 body {
   background: #f6f9f7;
   color: #0f172a;
+  line-height: 1.5; /* better readability */
+  overflow-x: hidden;
+}
+
+/* Header */
+.page-header {
+  width: 100%;
+  background: rgb(234, 255, 203);
+  padding: 20px;
+  border-bottom: 1px solid rgba(0, 60, 255, 0.12); /* fixed border-bottom */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(4px); /* optional glassy effect */
+}
+
+.back-btn {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600; 
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  background-color: #5ed100; /* Green background */
+  color: white;
+}
+
+.back-btn:hover {
+  color: #15803d;
+  text-decoration: underline;
 }
 
 /* Main Container */
 .listing-container {
-  width: 100%;
   max-width: 900px;
   margin: 50px auto;
   padding: 35px;
@@ -71,7 +72,6 @@ body {
 /* Form */
 .listing-form {
   width: 100%;
-  max-width: 900%;
 }
 
 .form-group {
@@ -96,6 +96,7 @@ body {
   outline: none;
   transition: all 0.2s ease;
   background: #ffffff;
+  -webkit-appearance: none; /* prevent iOS styling issues */
 }
 
 .form-group input:focus,
@@ -116,7 +117,7 @@ textarea {
   gap: 18px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 700px) {
   .grid-2 {
     grid-template-columns: 1fr;
   }
@@ -126,7 +127,6 @@ textarea {
 .submit-btn {
   margin-top: 25px;
   width: 100%;
-  max-width: 900%;
   padding: 14px;
   border: none;
   border-radius: 10px;
@@ -141,6 +141,11 @@ textarea {
 .submit-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 18px rgba(34, 197, 94, 0.3);
+}
+
+.submit-btn:focus {
+  outline: 2px solid #22c55e;
+  outline-offset: 2px;
 }
 
 /* Modal Overlay */
@@ -167,6 +172,12 @@ textarea {
   padding: 30px;
   text-align: center;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 400px) {
+  .modal-content {
+    padding: 20px; /* compact on small screens */
+  }
 }
 
 .modal-content h3 {
@@ -198,6 +209,11 @@ textarea {
   background: #16a34a;
 }
 
+.wallet-btn:focus {
+  outline: 2px solid #22c55e;
+  outline-offset: 2px;
+}
+
 /* Close Button */
 .close-btn {
   width: 100%;
@@ -214,8 +230,12 @@ textarea {
   background: #ecfdf5;
 }
 
+.close-btn:focus {
+  outline: 2px solid #22c55e;
+  outline-offset: 2px;
+}
+
 /* reCAPTCHA spacing */
 .g-recaptcha {
   margin-top: 10px;
-
 }
