@@ -21,7 +21,7 @@ heade {
   justify-content: space-between;
   align-items: center;
   color: #131313;
-  padding: 15px 20px;
+  padding: 20px;
   font-family: 'Arial', sans-serif;
   position: sticky;
   top: 0;
@@ -51,7 +51,7 @@ heade {
 
 .nav a {
   text-decoration: none;
-  margin-left: 10px;
+  margin-left: 20px;
   color:#333;
   font-size: 14px;
 }
