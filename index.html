@@ -2,320 +2,130 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0f172a">
- <style>
-    body { overflow-x: hidden; }
-    .modal-content { max-height: 80vh; overflow-y: auto; }
-    button, a { -webkit-tap-highlight-color: transparent; }
- </style>
 <title>List Your Coin on THEVOIDLIST – Exclusive</title>
 <link rel="stylesheet" href="styles.css">
-<link href="https://unpkg.com/aos@2.3.4/dist/aos.js" rel="stylesheet">
 </head>
-<body class="montserrat_71baafa6-module__tcxNgW__variable font-sans antialiased">
+<body class="font-sans antialiased bg-white text-black">
 
-<header class="border-b sticky top-0 z-50 bg-white-100 backdrop-blur-sm" style="box-shadow:0 20px 50px -10px rgba(0, 43, 187, .12), 0 15px 20px -11px rgba(0, 43, 187, .12)">
-                <div class="mx-auto max-w-7xl px-6 py-5 lg:py-4 flex items-center justify-between">
-                    <div class="flex items-center">
-                        <a href="https://coinranking.com/" class="cursor-pointer" data-testid="logo-home">
-                            <img src="Image/THEVOIDLIST.PNG" scale-img="100px" alt="THEVOIDLIST" class="h-7 min-[390px]:h-6 lg:h-8 transition-transform duration-200 hover:scale-105"/>
-                        </a>
-                    </div>
-                    <nav class=" lg:flex items-center gap-8">
-                        <a href="#benefits" class="text-base font-medium text-foreground hover:text-primary transition-colors" data-testid="nav-benefits">Benefits</a>
-                        <a href="#how-it-works" class="text-base font-medium text-foreground hover:text-primary transition-colors" data-testid="nav-how-it-works">How It Works</a>
-                        <a href="list.html" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover-elevate active-elevate-2 transition-transform hover:scale-105 bg-green-500/150 text-primary-foreground border border-primary-border min-h-9 px-4 py-2" data-testid="button-list-coin-header">List Your Coin</a>
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <a href="https://coinranking.com/">
+            <img src="Image/THEVOIDLIST.PNG" alt="THEVOIDLIST" class="h-7 sm:h-6 lg:h-8 transition-transform hover:scale-105">
+        </a>
+        <nav class="hidden lg:flex gap-8 items-center">
+            <a href="#benefits" class="text-base font-medium text-gray-800 hover:text-green-500">Benefits</a>
+            <a href="#how-it-works" class="text-base font-medium text-gray-800 hover:text-green-500">How It Works</a>
+            <a href="List/List.html" class="bg-green-500 text-white px-4 py-2 rounded-md hover:scale-105 transition-transform">List Your Coin</a>
+        </nav>
+        <div class="lg:hidden flex items-center gap-3">
+            <a href="List/List.html" class="hidden min-[390px]:inline-flex px-3 py-2 rounded-md text-sm font-semibold bg-green-500 text-white hover:scale-105">List Your Coin</a>
+            <div class="relative">
+                <input type="checkbox" id="mobile-menu-toggle" class="peer hidden">
+                <label for="mobile-menu-toggle" class="cursor-pointer">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </label>
+                <div class="peer-checked:block hidden fixed left-0 right-0 top-[73px] bg-white z-40 shadow-md">
+                    <nav class="flex flex-col px-6 py-4 max-w-7xl mx-auto">
+                        <a href="#benefits" class="py-2.5 text-base font-medium text-gray-800 hover:text-green-500">Benefits</a>
+                        <a href="#how-it-works" class="py-2.5 text-base font-medium text-gray-800 hover:text-green-500">How It Works</a>
+                        <a href="List.html" class="mt-4 py-3 px-6 rounded-lg bg-green-500 text-white font-semibold hover:scale-105">List Your Coin</a>
                     </nav>
-                    <div class="lg:hidden flex items-center gap-3">
-                        <a href="List/List.html" class="items-center justify-center gap-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover-elevate active-elevate-2 transition-transform hover:scale-105 bg-green-500/150 text-primary-foreground border border-primary-border min-h-8 rounded-md px-3 hidden min-[390px]:inline-flex text-sm font-semibold" data-testid="button-list-coin-mobile">List Your Coin</a>
-                        <div class="relative">
-                            <input type="checkbox" id="mobile-menu-toggle" class="peer hidden"/>
-                            <label for="mobile-menu-toggle" class="cursor-pointer peer-checked:text-primary" data-testid="button-mobile-menu">
-                              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                                </svg>
-                            </label>
-                            <div class="peer-checked:block hidden fixed left-0 right-0 top-[73px] bg-background border-b border-border z-40" style="box-shadow:0 20px 50px -10px rgba(0, 43, 187, .12), 0 15px 20px -11px rgba(0, 43, 187, .12)">
-                                <nav class="flex flex-col px-6 py-4 max-w-7xl mx-auto">
-                                    <a href="#benefits" class="text-base font-medium text-foreground hover:text-primary transition-colors block py-2.5" data-testid="nav-benefits-mobile">Benefits</a>
-                                    <a href="#how-it-works" class="text-base font-medium text-foreground hover:text-primary transition-colors block py-2.5" data-testid="nav-how-it-works-mobile">How It Works</a>
-                                    <a href="List.html" class="inline-flex items-center justify-center gap-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover-elevate active-elevate-2 transition-transform hover:scale-105 bg-green-500/150 text-primary-foreground border border-primary-border min-h-9 text-base px-6 py-3 rounded-lg h-auto font-semibold mt-4" data-testid="button-list-coin-header-mobile">List your coin</a>
-                                </nav>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
- <section class="background-gradient relative min-h-screen flex items-center -mt-[65px] pt-[65px] lg:-mt-[73px] lg:pt-[73px]">
-                <div class="absolute bg-gradient-to-br from-primary/10 via-background to-primary/5 left-0 right-0 bottom-0" style="top:-65px"></div>
-                <div class="relative z-10 w-full max-w-5xl mx-auto px-6 md:px-8 py-16 md:py-24">
-                    <div class="text-center space-y-8">
-                        <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-black-200 tracking-tight text-foreground leading-tight">
-                            List Your Coin on <span class="text-green-500/100">TheVOIDLIST</span>
-                        </h1>
-                        <p class="text-lg md:text-xl text-black-200 text-muted-foreground leading-relaxed max-w-3xl mx-auto">Reach a huge crypto audience and be all over the crypto map. Listing your crypto coin on our platform takes a few minutes and it &#x27;s completely free.</p>
-                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                            <a href="List.html" class="inline-flex items-center justify-center gap-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover-elevate active-elevate-2 transition-transform hover:scale-105 bg-green-500/150 text-primary-foreground border border-green-500/100 min-h-10 text-base px-8 py-4 rounded-lg h-auto font-semibold" style="background-color: green;" data-testid="button-list-coin-hero">List Your Coin</a>
-                            <a href="List.html" class="inline-flex items-center justify-center gap-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover-elevate active-elevate-2 transition-transform hover:scale-105 bg-secondary text-green-500 text-secondary-foreground min-h-10 text-base px-8 py-4 rounded-lg h-auto font-semibold border border-border" style="background-color:#F7FAFF" data-testid="button-edit-coin-hero">Edit Your Coin</a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-<section id="section1" class="section md:py-20 border-y border-border">
-  <div class="max-w-7xl mx-auto px-6 md:px-8">
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-
-      <div class="text-center">
-        <div class="text-5xl md:text-6xl font-bold text-green-500/100 tabular-nums counter"
-             data-target="500" data-suffix="K+">0</div>
-        <div class="text-sm md:text-base text-muted-foreground font-medium">Users</div>
-      </div>
-
-      <div class="text-center">
-        <div class="text-5xl md:text-6xl font-bold text-green-500/100 tabular-nums counter"
-             data-target="40" data-suffix="K+">0</div>
-        <div class="text-sm md:text-base text-muted-foreground font-medium">API Users</div>
-      </div>
-
-      <div class="text-center">
-        <div class="text-5xl md:text-6xl font-bold text-green-500/100 tabular-nums counter"
-             data-target="1" data-suffix="M+">0</div>
-        <div class="text-sm md:text-base text-muted-foreground font-medium">Coins Listed</div>
-      </div>
-
-      <div class="text-center">
-        <div class="text-5xl md:text-6xl font-bold text-green-500/100 tabular-nums counter"
-             data-target="120" data-suffix="+">0</div>
-        <div class="text-sm md:text-base text-muted-foreground font-medium">Exchanges Listed</div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<section id="benefits" class="py-12 md:py-20">
-            <section id="benefits" class="py-12 md:py-20">
-                <div class="max-w-7xl mx-auto px-6 md:px-8">
-                    <div class="text-center mb-16">
-                        <h2 class="text-4xl md:text-5xl font-bold text-foreground mb-4">Your Upsides</h2>
-                    </div>
-                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                        <div class="shadcn-card rounded-xl border text-card-foreground bg-transparent-white border-border" data-testid="benefit-card">
-                            <div class="p-6 md:p-8">
-                                <div class="w-14 h-14 bg-green-500/5 rounded-xl flex items-center justify-center mx-auto mb-4 border border-primary">
-                                    <div class="w-6 h-6 text-primary">
-                                        <svg  class="w-6 h-6 text-green-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users w-full h-full">
-                                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                                            <circle cx="9" cy="7" r="4"></circle>
-                                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <h3 class="text-xl font-bold mb-2 text-foreground text-center">Reach Millions</h3>
-                                <p class="text-base text-muted-foreground leading-relaxed text-center">Get your crypto coin on Coinranking to reach millions of potential users. Join the thousands of coins featured on our platform.</p>
-                            </div>
-                        </div>
-                        <div class="shadcn-card rounded-xl border text-card-foreground bg-transparent border-border" data-testid="benefit-card">
-                            <div class="p-6 md:p-8">
-                                <div class="w-14 h-14 bg-green-500/5 rounded-xl flex items-center justify-center mx-auto mb-4 border border-primary">
-                                    <div class="w-6 h-6 text-primary">
-                                        <svg class="w-6 h-6 text-green-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe w-full h-full">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
-                                            <path d="M2 12h20"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <h3 class="text-xl font-bold mb-2 text-foreground text-center">Your Coin Everywhere</h3>
-                                <p class="text-base text-muted-foreground leading-relaxed text-center">Your coin will be listed automatically on Coinranking.com, Coinranking API and all third party apps that integrated our price data.</p>
-                            </div>
-                        </div>
-                        <div class="shadcn-card rounded-xl border text-card-foreground bg-transparent border-border" data-testid="benefit-card">
-                            <div class="p-6 md:p-8">
-                                <div class="w-14 h-14 bg-green-500/5 rounded-xl flex items-center justify-center mx-auto mb-4 border border-primary">
-                                    <div class="w-6 h-6 text-primary">
-                                        <svg class="w-6 h-6 text-green-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code w-full h-full">
-                                            <polyline points="16 18 22 12 16 6"></polyline>
-                                            <polyline points="8 6 2 12 8 18"></polyline>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <h3 class="text-xl font-bold mb-2 text-foreground text-center">Enjoy Our API</h3>
-                                <p class="text-base text-muted-foreground leading-relaxed text-center">
-                                    Use our <a href="https://coinranking.com/api" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">API</a>
-                                    to fuel your apps with detailed crypto data, from wallets to portfolio apps or project websites. We &#x27;ve got everything you need.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="shadcn-card rounded-xl border text-card-foreground bg-transparent border-border" data-testid="benefit-card">
-                            <div class="p-6 md:p-8">
-                                <div class="w-14 h-14 bg-green-500/5 rounded-xl flex items-center justify-center mx-auto mb-4 border border-primary">
-                                    <div class="w-6 h-6 text-primary">
-                        <svg class="w-6 h-6 text-green-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen w-full h-full">
-                           <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                           <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
-                        </svg>
-                    </div>
-                </div>
-                   <h3 class="text-xl font-bold mb-2 text-foreground text-center">Update Easily</h3>
-                   <p class="text-base text-muted-foreground leading-relaxed text-center">
-                      Easily <a href="https://airtable.com/appze7wC1wtsVUL6r/pagCuzaieimp9GquL/form" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">update</a>
-                      your cryptocurrency &#x27;s details, such as description, social media links, or new wallet and exchange listings.
-                   </p>
                 </div>
             </div>
         </div>
     </div>
+</header>
+
+<section class="relative min-h-screen flex items-center pt-[65px] lg:pt-[73px] bg-gradient-to-br from-green-100/30 to-white">
+    <div class="max-w-5xl mx-auto px-6 py-16 text-center">
+        <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">List Your Coin on <span class="text-green-500">TheVOIDLIST</span></h1>
+        <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mt-6">Reach a huge crypto audience and be all over the crypto map. Listing your crypto coin on our platform takes a few minutes and it’s completely free.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+            <a href="List.html" class="px-8 py-4 rounded-lg bg-green-500 text-white font-semibold hover:scale-105 transition-transform">List Your Coin</a>
+            <a href="List.html" class="px-8 py-4 rounded-lg bg-gray-100 text-gray-800 font-semibold border border-gray-300 hover:bg-gray-200">Edit Your Coin</a>
+        </div>
+    </div>
 </section>
 
-<section id="how-it-works" class="py-12 md:py-20 bg-card/30">
-                <div class="max-w-5xl mx-auto px-6 md:px-8">
-                    <div class="text-center mb-12">
-                        <h2 class="text-4xl md:text-5xl font-bold text-foreground mb-4">How Does It Work?</h2>
-                        <p class="text-lg text-muted-foreground max-w-3xl mx-auto">Start by opening the Listing Form, enter your coin &#x27;s information and see it listed on coinranking.com shortly after.</p>
-                    </div>
-                    <div class="grid md:grid-cols-3 gap-8 md:gap-12 mb-12">
-                        <div class="relative">
-                            <div class="flex flex-col items-center text-center" data-testid="step-1">
-                                <div class="w-16 h-16 bg-green-500/50 rounded-full flex items-center justify-center mb-4 border-green-500/70 border-2 border-primary">
-                                    <div class="w-7 h-7 text-primary">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text w-full h-full">
-                                            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
-                                            <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
-                                            <path d="M10 9H8"></path>
-                                            <path d="M16 13H8"></path>
-                                            <path d="M16 17H8"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <h3 class="text-lg font-bold mb-2 text-foreground">Open the Listing Form</h3>
-                                <p class="text-sm text-muted-foreground leading-relaxed">
-                                    <a href="list.html" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Open the form</a>
-                                    to get started
-                                </p>
-                            </div>
-                            <div class="hidden md:block absolute top-4 left-[calc(50%+4rem)] w-[calc(100%-8rem)]">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-8 h-8 text-primary/70 mx-auto">
-                                    <path d="M5 12h14"></path>
-                                    <path d="m12 5 7 7-7 7"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="relative">
-                            <div class="flex flex-col items-center text-center" data-testid="step-2">
-                                <div class="w-16 h-16 bg-green-500/50 rounded-full flex items-center justify-center mb-4 border-2 border-primary border-green-500/70">
-                                    <div class="w-7 h-7 text-primary">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen w-full h-full">
-                                            <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                            <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <h3 class="text-lg font-bold mb-2 text-foreground">Provide Coin Details</h3>
-                                <p class="text-sm text-muted-foreground leading-relaxed">Like name, contract address, supply, etc</p>
-                            </div>
-                            <div class="hidden md:block absolute top-4 left-[calc(50%+4rem)] w-[calc(100%-8rem)]">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-8 h-8 text-primary/70 mx-auto">
-                                    <path d="M5 12h14"></path>
-                                    <path d="m12 5 7 7-7 7"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="relative">
-                            <div class="flex flex-col items-center text-center" data-testid="step-3">
-                                <div class="w-16 h-16 bg-green-500/50 rounded-full flex items-center justify-center mb-4 border-2 border-primary border-green-500/70">
-                                    <div class="w-7 h-7 text-primary">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check-big w-full h-full">
-                                            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-                                            <path d="m9 11 3 3L22 4"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <h3 class="text-lg font-bold mb-2 text-foreground">You &#x27;re Listed!</h3>
-                                <p class="text-sm text-muted-foreground leading-relaxed">Often within 48 hours</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <a href="List.html" class="inline-flex items-center justify-center gap-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover-elevate active-elevate-2 transition-transform hover:scale-105 bg-green-500/70 text-primary-foreground border border-green-500/100 min-h-10 text-base px-8 py-4 rounded-lg h-auto font-semibold" data-testid="button-listing-form">Go to Listing Form</a>
-                    </div>
-                </div>
-            </section>
-            <section id="cta" class="py-16 md:py-24 bg-gradient-to-br from-primary/10 via-background to-primary/5">
-                <div class="max-w-4xl mx-auto px-6 md:px-8 text-center">
-                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">List Your Coin</h2>
-                    <p class="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">And grow your coin &#x27;s influence in the Coinranking ecosystem.</p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="list.html" class="inline-flex items-center justify-center gap-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover-elevate active-elevate-2 transition-transform hover:scale-105 bg-green-500/70 text-primary-foreground border border-green-500/100 min-h-10 text-base px-8 py-4 rounded-lg h-auto font-semibold" data-testid="button-list-coin-cta">List your coin</a>
-                        <a href="list.html" class="inline-flex items-center justify-center gap-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover-elevate active-elevate-2 transition-transform hover:scale-105 bg-secondary text-secondary-foreground min-h-10 text-base px-8 py-4 rounded-lg h-auto font-semibold border border-border" style="background-color:#F7FAFF" data-testid="button-edit-coin-cta">Edit Your Coin</a>
-                    </div>
-                </div>
-            </section>
+<!-- Stats Section -->
+<section class="py-12 md:py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+        <div>
+            <div class="text-5xl font-bold text-green-500">500K+</div>
+            <div class="text-sm text-gray-500">Users</div>
+        </div>
+        <div>
+            <div class="text-5xl font-bold text-green-500">40K+</div>
+            <div class="text-sm text-gray-500">API Users</div>
+        </div>
+        <div>
+            <div class="text-5xl font-bold text-green-500">1M+</div>
+            <div class="text-sm text-gray-500">Coins Listed</div>
+        </div>
+        <div>
+            <div class="text-5xl font-bold text-green-500">120+</div>
+            <div class="text-sm text-gray-500">Exchanges Listed</div>
+        </div>
+    </div>
+</section>
 
+<!-- Benefits Section -->
+<section id="benefits" class="py-12 md:py-20 text-center max-w-7xl mx-auto px-6">
+    <h2 class="text-4xl md:text-5xl font-bold mb-12">Your Upsides</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Example Card -->
+        <div class="bg-white rounded-xl p-6 shadow hover:shadow-lg transition">
+            <div class="w-14 h-14 mx-auto mb-4 flex items-center justify-center rounded-xl bg-green-100 text-green-500">
+                <!-- icon -->
+            </div>
+            <h3 class="text-xl font-bold mb-2">Reach Millions</h3>
+            <p class="text-gray-600 text-sm">Get your crypto coin on Coinranking to reach millions of potential users.</p>
+        </div>
+        <!-- Repeat similar cards for other benefits -->
+    </div>
+</section>
 
-<footer class="background-gradient border-t border-border bg-card/30">
-                <div class="max-w-7xl mx-auto px-6 md:px-8">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-12">
-                        <div>
-                            <p class="text-base text-black text-muted-foreground leading-relaxed">The Independent Crypto Data Platform Since 2017.</p>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-foreground text-black mb-4">Services</h3>
-                            <ul class="space-y-2">
-                                <li>
-                                    <a href="https://coinranking.com/api" class="text-base text-muted-foreground hover:text-foreground transition-colors" data-testid="link-api">Coinranking API</a>
-                                </li>
-                                <li>
-                                    <a href="https://coinranking.com/exchange-listing" class="text-base text-muted-foreground hover:text-foreground transition-colors" data-testid="link-list-exchange">List an Exchange</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-foreground text-black mb-4">Company</h3>
-                            <ul class="space-y-2">
-                                <li>
-                                    <a href="https://support.coinranking.com/article/98-terms-conditions" class="text-base text-muted-foreground hover:text-foreground transition-colors" data-testid="link-terms">Terms &amp;Conditions</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-foreground text-black mb-4">Contact</h3>
-                            <ul class="space-y-2">
-                                <li>
-                                    <a href="https://calendly.com/d/336-gtx-7sy/web3-growth-discussion-with-coinranking-com" class="text-base text-muted-foreground hover:text-foreground transition-colors" data-testid="link-book-call-footer">Book a Call</a>
-                                </li>
-                                <li>
-                                    <a href="mailto:info@coinranking.com" class="text-base text-muted-foreground hover:text-foreground transition-colors" data-testid="link-email-footer">Email</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="background-gradient pt-8 border-t border-border bg-white text-black text-center">
-                        <p class="text-sm text-muted-foreground">© 
-                        <!-- -->
-                        2026
-                        <!-- -->
-                        THEVOIDLIST. All rights reserved.</p>
-                    </div>
-                </div>
+<!-- How It Works Section -->
+<section id="how-it-works" class="py-12 md:py-20 bg-gray-50 text-center">
+    <h2 class="text-4xl md:text-5xl font-bold mb-12">How Does It Work?</h2>
+    <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <!-- Step 1 -->
+        <div class="flex flex-col items-center bg-white p-6 rounded-xl shadow">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4"></div>
+            <h3 class="font-bold mb-2">Open the Listing Form</h3>
+            <p class="text-gray-500 text-sm">Open the form to get started</p>
+        </div>
+        <!-- Step 2 -->
+        <div class="flex flex-col items-center bg-white p-6 rounded-xl shadow">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4"></div>
+            <h3 class="font-bold mb-2">Provide Coin Details</h3>
+            <p class="text-gray-500 text-sm">Like name, contract address, supply, etc</p>
+        </div>
+        <!-- Step 3 -->
+        <div class="flex flex-col items-center bg-white p-6 rounded-xl shadow">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4"></div>
+            <h3 class="font-bold mb-2">You’re Listed!</h3>
+            <p class="text-gray-500 text-sm">Often within 48 hours</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 md:py-24 bg-gradient-to-br from-green-100/30 to-white text-center">
+    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">List Your Coin</h2>
+    <p class="text-lg md:text-xl text-gray-600 mb-8">And grow your coin's influence in the Coinranking ecosystem.</p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="List.html" class="px-8 py-4 rounded-lg bg-green-500 text-white font-semibold hover:scale-105">List your coin</a>
+        <a href="List.html" class="px-8 py-4 rounded-lg bg-gray-100 text-gray-800 font-semibold border border-gray-300 hover:bg-gray-200">Edit Your Coin</a>
+    </div>
+</section>
+
+<footer class="bg-gray-900 text-white py-10 text-center">
+    <p class="text-sm text-gray-400">© 2026 THEVOIDLIST. All rights reserved.</p>
 </footer>
 
-<script>
-// simple scroll animation
-const els = document.querySelectorAll('.fade');
-window.addEventListener('scroll',()=>{
-  els.forEach(e=>{
-    if(e.getBoundingClientRect().top < window.innerHeight-50) e.classList.add('show');
-  });
-});
-</script>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
 <script src="script.js" defer></script>
-
 </body>
 </html>
