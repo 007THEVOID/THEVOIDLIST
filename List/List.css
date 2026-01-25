@@ -1,4 +1,4 @@
-/* Reset */
+/* ===== Reset & Global Styles ===== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -6,24 +6,23 @@
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
-/* Body */
 body {
   background: #f6f9f7;
   color: #0f172a;
-  line-height: 1.5; /* better readability */
+  line-height: 1.5;
   overflow-x: hidden;
 }
 
-/* Header */
+/* ===== Header ===== */
 .page-header {
   width: 100%;
   background: rgb(234, 255, 203);
   padding: 20px;
-  border-bottom: 1px solid rgba(0, 60, 255, 0.12); /* fixed border-bottom */
+  border-bottom: 1px solid rgba(0, 60, 255, 0.12);
   position: sticky;
   top: 0;
   z-index: 10;
-  backdrop-filter: blur(4px); /* optional glassy effect */
+  backdrop-filter: blur(4px);
 }
 
 .back-btn {
@@ -31,10 +30,10 @@ body {
   border: none;
   border-radius: 10px;
   font-size: 16px;
-  font-weight: 600; 
+  font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-  background-color: #5ed100; /* Green background */
+  background-color: #5ed100;
   color: white;
 }
 
@@ -43,7 +42,7 @@ body {
   text-decoration: underline;
 }
 
-/* Main Container */
+/* ===== Main Container ===== */
 .listing-container {
   max-width: 900px;
   margin: 50px auto;
@@ -53,7 +52,7 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
-/* Titles */
+/* ===== Titles ===== */
 .form-title {
   text-align: center;
   margin-bottom: 30px;
@@ -69,7 +68,7 @@ body {
   padding-left: 10px;
 }
 
-/* Form */
+/* ===== Form ===== */
 .listing-form {
   width: 100%;
 }
@@ -96,7 +95,7 @@ body {
   outline: none;
   transition: all 0.2s ease;
   background: #ffffff;
-  -webkit-appearance: none; /* prevent iOS styling issues */
+  -webkit-appearance: none;
 }
 
 .form-group input:focus,
@@ -110,7 +109,7 @@ textarea {
   resize: vertical;
 }
 
-/* Grid */
+/* ===== Grid ===== */
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -123,7 +122,7 @@ textarea {
   }
 }
 
-/* Submit Button */
+/* ===== Submit Button ===== */
 .submit-btn {
   margin-top: 25px;
   width: 100%;
@@ -148,7 +147,7 @@ textarea {
   outline-offset: 2px;
 }
 
-/* Modal Overlay */
+/* ===== Modal Overlay & Box ===== */
 .modal {
   position: fixed;
   inset: 0;
@@ -157,13 +156,22 @@ textarea {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+
+  /* ===== Tiny UX fixes integrated ===== */
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.modal.show {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .hidden {
   display: none !important;
 }
 
-/* Modal Box */
 .modal-content {
   background: #ffffff;
   width: 90%;
@@ -172,11 +180,13 @@ textarea {
   padding: 30px;
   text-align: center;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 @media (max-width: 400px) {
   .modal-content {
-    padding: 20px; /* compact on small screens */
+    padding: 20px;
   }
 }
 
@@ -190,15 +200,24 @@ textarea {
   margin-bottom: 25px;
 }
 
-/* Wallet Button */
+/* ===== Status Box inside Modal (UX tweak) ===== */
+.modal-content div {
+  background: #ecfdf5;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+/* ===== Wallet Button ===== */
 .wallet-btn {
   width: 100%;
-  padding: 12px;
+  padding: 16px !important;
   border: none;
   border-radius: 8px;
   background: #22c55e;
   color: #ffffff;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
   margin-bottom: 12px;
@@ -214,7 +233,7 @@ textarea {
   outline-offset: 2px;
 }
 
-/* Close Button */
+/* ===== Close Button ===== */
 .close-btn {
   width: 100%;
   padding: 10px;
@@ -235,7 +254,7 @@ textarea {
   outline-offset: 2px;
 }
 
-/* reCAPTCHA spacing */
+/* ===== reCAPTCHA spacing ===== */
 .g-recaptcha {
   margin-top: 10px;
 }
