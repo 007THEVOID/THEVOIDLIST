@@ -1,3 +1,4 @@
+console.log("List/List.js loaded);
 // ====== IMPORTS (Module Safe) ======
 import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.min.js";
 import { Web3Modal } from "https://cdn.jsdelivr.net/npm/@web3modal/standalone@2.6.0/dist/index.js";
@@ -185,3 +186,4 @@ payBtn.onclick = async () => {
     form.querySelector(".submit-btn").disabled = false;
   }
 };
+
