@@ -163,13 +163,16 @@ textarea {
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-.modal.show {
-  opacity: 1;
-  transform: scale(1);
+.modal.hidden {
+  display: none;
 }
 
-.hidden {
-  display: none !important;
+.modal.show {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  transform: scale(1);
 }
 
 .modal-content {
@@ -258,3 +261,4 @@ textarea {
 .g-recaptcha {
   margin-top: 10px;
 }
+
