@@ -2,37 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>List Your Project</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0f172a">
+
   <link rel="stylesheet" href="List/List.css">
-  <script src="https://www.google.com/recaptcha/api.js" defer></script>
+  
+  <!-- reCAPTCHA -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  
+  <!-- Web3/Ethers/Web3Modal -->
+  <script type="module" src="script.js"></script>
 </head>
 <body>
 
 <header class="page-header">
-  <a href="index.html" class="back-btn">Back to Home</a>
+  <button class="back-btn" onclick="window.location.href='/'">Back to Home</button>
+
 </header>
 
-<section class="listing-container">
-
-  <h2 class="form-title">Your Project Info</h2>
-
+<main class="listing-container">
   <form id="tokenForm" class="listing-form">
+    
     <!-- Project Info -->
     <h3 class="section-title">Project Information</h3>
     <div class="form-group">
       <label>Project Name</label>
-      <input type="text" name="projectName" placeholder="e.g. PrimeTech" required>
+      <input type="text" name="projectName" required>
     </div>
     <div class="form-group">
       <label>Token Symbol</label>
-      <input type="text" name="symbol" placeholder="e.g. PRM" required>
+      <input type="text" name="symbol" required>
     </div>
     <div class="form-group">
       <label>Blockchain</label>
       <select name="blockchain" required>
-        <option value="">Select blockchain</option>
         <option>Ethereum</option>
         <option>BNB Smart Chain</option>
         <option>Polygon</option>
@@ -46,11 +48,11 @@
     </div>
     <div class="form-group">
       <label>Contract Address</label>
-      <input type="text" name="contract" placeholder="0x..." required>
+      <input type="text" name="contractAddress" required>
     </div>
     <div class="form-group">
       <label>Project Description</label>
-      <textarea name="description" rows="5" placeholder="Describe your project, utility, roadmap, and goals..." required></textarea>
+      <textarea name="description" rows="4" required></textarea>
     </div>
 
     <!-- Tokenomics -->
@@ -115,18 +117,18 @@
 
     <button type="submit" class="submit-btn">Submit Project</button>
   </form>
-</section>
+</main>
 
 <!-- Payment Modal -->
-<div id="feeModal" class="modal hidden">
+<div class="modal hidden" id="feeModal">
   <div class="modal-content">
-    <h3>Project info received</h3>
+    <h3>Project Info Received</h3>
     <p>A fee of <strong>$50 USDT (ERC20)</strong> must be paid to list your project.</p>
-    <button type="button" id="connectWalletBtn" class="wallet-btn">Connect Wallet</button>
-    <button type="button" id="closeModal" class="close-btn">Cancel</button>
+    <div id="statusBox"></div>
+    <button id="connectWalletBtn" class="wallet-btn">Connect Wallet & Pay</button>
+    <button id="closeModal" class="close-btn">Cancel</button>
   </div>
 </div>
 
-<script src="List/List.js"></script>
 </body>
 </html>
