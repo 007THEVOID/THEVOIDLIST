@@ -202,3 +202,43 @@ footer a{color:var(--green)}
   font-size: 14px;
 }
 
+/* Hide mobile menu and hamburger by default */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 5px;
+}
+.hamburger div {
+  width: 25px;
+  height: 3px;
+  background-color: white;
+}
+
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  background-color: #1e1e1e; /* same as header */
+  position: absolute;
+  top: 60px; /* adjust if your header is taller */
+  left: 0;
+  width: 100%;
+  z-index: 999;
+}
+.mobile-menu li {
+  padding: 10px 20px;
+}
+
+/* Responsive for mobile */
+@media (max-width: 768px) {
+  .desktop-menu {
+    display: none; /* hide desktop menu on mobile */
+  }
+  .hamburger {
+    display: flex; /* show hamburger */
+  }
+  .mobile-menu.show {
+    display: flex; /* show dropdown when active */
+  }
+}
+
