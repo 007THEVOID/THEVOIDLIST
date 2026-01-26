@@ -1,134 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>VoidList – Submit Project</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="List/List.css">
-  
-  <!-- reCAPTCHA -->
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-  
-  <!-- Web3/Ethers/Web3Modal -->
-  <script type="module" src="List/script.js"></script>
+  <link rel="stylesheet" href="List/List.css" />
+
+  <!-- Ethers -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+  <!-- WalletConnect v2 -->
+  <script src="https://unpkg.com/@walletconnect/ethereum-provider@2.10.0/dist/index.umd.js"></script>
 </head>
+
 <body>
 
-<header class="page-header">
-  <button class="back-btn" onclick="window.location.href='/'">Back to Home</button>
+<form id="projectForm" class="submit-form" novalidate>
 
-</header>
+  <input name="projectName" placeholder="Project Name" required />
+  <input name="tokenSymbol" placeholder="Token Symbol" required />
 
-<main class="listing-container">
-  <form id="tokenForm" class="listing-form">
-    
-    <!-- Project Info -->
-    <h3 class="section-title">Project Information</h3>
-    <div class="form-group">
-      <label>Project Name</label>
-      <input type="text" name="projectName" required>
-    </div>
-    <div class="form-group">
-      <label>Token Symbol</label>
-      <input type="text" name="symbol" required>
-    </div>
-    <div class="form-group">
-      <label>Blockchain</label>
-      <select name="blockchain" required>
-        <option>Ethereum</option>
-        <option>BNB Smart Chain</option>
-        <option>Polygon</option>
-        <option>Arbitrum</option>
-        <option>Optimism</option>
-        <option>Solana</option>
-        <option>Avalanche</option>
-        <option>Base</option>
-        <option>Other</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Contract Address</label>
-      <input type="text" name="contractAddress" required>
-    </div>
-    <div class="form-group">
-      <label>Project Description</label>
-      <textarea name="description" rows="4" required></textarea>
-    </div>
+  <select name="blockchain" required>
+    <option value="">Select Blockchain</option>
+    <option>Ethereum</option>
+    <option>BSC</option>
+    <option>Polygon</option>
+    <option>Arbitrum</option>
+  </select>
 
-    <!-- Tokenomics -->
-    <h3 class="section-title">Tokenomics</h3>
-    <div class="grid-2">
-      <div class="form-group">
-        <label>Total Supply</label>
-        <input type="number" inputmode="numeric" name="totalSupply" placeholder="1000000000" required>
-      </div>
-      <div class="form-group">
-        <label>Circulating Supply</label>
-        <input type="number" inputmode="numeric" name="circulatingSupply" placeholder="250000000" required>
-      </div>
-      <div class="form-group">
-        <label>Market Cap (USD)</label>
-        <input type="number" inputmode="numeric" name="marketCap" placeholder="5000000">
-      </div>
-      <div class="form-group">
-        <label>Initial Price (USD)</label>
-        <input type="number" step="0.000001" inputmode="decimal" name="price" placeholder="0.01">
-      </div>
-    </div>
+  <input name="contract" placeholder="Contract Address" required />
+  <textarea name="description" placeholder="Project Description" required></textarea>
 
-    <!-- Links -->
-    <h3 class="section-title">Project Links</h3>
-    <div class="form-group">
-      <label>Website</label>
-      <input type="url" name="website" placeholder="https://yourproject.com">
-    </div>
-    <div class="form-group">
-      <label>Whitepaper</label>
-      <input type="url" name="whitepaper">
-    </div>
-    <div class="form-group">
-      <label>Twitter / X</label>
-      <input type="url" name="twitter">
-    </div>
-    <div class="form-group">
-      <label>Telegram</label>
-      <input type="url" name="telegram">
-    </div>
+  <input name="website" placeholder="Website URL" />
+  <input name="twitter" placeholder="Twitter / X URL" />
+  <input name="telegram" placeholder="Telegram URL" />
 
-    <!-- Developer Info -->
-    <h3 class="section-title">Developer Information</h3>
-    <div class="form-group">
-      <label>Your Name</label>
-      <input type="text" name="devName" required>
-    </div>
-    <div class="form-group">
-      <label>Email Address</label>
-      <input type="email" name="email" required>
-    </div>
-    <div class="form-group">
-      <label>Telegram Username</label>
-      <input type="text" name="telegramUser" placeholder="@username">
-    </div>
+  <input name="devName" placeholder="Developer Name" required />
+  <input name="devEmail" placeholder="Developer Email" required />
 
-    <!-- reCAPTCHA -->
-    <div class="form-group">
-      <div class="g-recaptcha" data-sitekey="6LfZ4lUsAAAAAE1CRLmDxmSQ4e4uKdw08hFi_Dsc"></div>
-    </div>
+  <button type="submit" class="primary-btn">
+    Submit Project
+  </button>
 
-    <button type="submit" class="submit-btn">Submit Project</button>
-  </form>
-</main>
+  <p class="fee-note">
+    A fee of $50 USDT (ERC-20) must be paid to list your project.
+  </p>
+</form>
 
-<!-- Payment Modal -->
-<div class="modal hidden" id="feeModal">
-  <div class="modal-content">
-    <h3>Project Info Received</h3>
-    <p>A fee of <strong>$50 USDT (ERC20)</strong> must be paid to list your project.</p>
-    <div id="statusBox"></div>
-    <button id="connectWalletBtn" class="wallet-btn">Connect Wallet & Pay</button>
-    <button id="closeModal" class="close-btn">Cancel</button>
+<!-- PAYMENT INFO MODAL -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal">
+    <h2>Project Info</h2>
+    <p>
+      A fee of <strong>$50</strong> is required.<br />
+      USD must be paid for projects to be listed.
+    </p>
+    <button type="button" class="primary-btn" id="connectPayBtn">
+      Connect to Pay
+    </button>
   </div>
 </div>
 
+<!-- WALLET MODAL -->
+<div class="modal-overlay" id="walletModal">
+  <div class="modal">
+    <h2>Choose Wallet</h2>
+
+    <button type="button" class="wallet-btn" id="metaMaskBtn">
+      Pay – Connect MetaMask
+    </button>
+
+    <button type="button" class="wallet-btn" id="walletConnectBtn">
+      WalletConnect
+    </button>
+
+    <div class="status" id="statusText"></div>
+  </div>
+</div>
+
+<!-- UNDER REVIEW MODAL -->
+<div class="modal-overlay" id="underReviewModal">
+  <div class="modal">
+    <h2>Project under review</h2>
+    <p>
+      Your payment was received successfully.<br />
+      Your project is currently under review and may take
+      <strong>three to four days</strong> to be approved.
+    </p>
+    <button type="button" class="primary-btn" id="closeReviewBtn">
+      Close
+    </button>
+  </div>
+</div>
+
+<script src="List/script.js" defer></script>
 </body>
 </html>
