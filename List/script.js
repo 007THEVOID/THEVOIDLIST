@@ -144,43 +144,38 @@ ${data.description}
     }
   });
 
-  /* ---------- WalletConnect v2 (MODERN, FIXED) ---------- */
-  walletConnectBtn.addEventListener("click", async () => {
-    try {
-      console.log("🔗 WalletConnect clicked");
+walletConnectBtn.addEventListener("click", async () => {
+  try {
+    console.log("🔗 WalletConnect clicked");
 
-      const { EthereumProvider } = await import(
-        "https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle"
-      );
+    // 🔥 IMPORTANT: close modal first
+    walletModal.style.display = "none";
 
-      const wcProvider = await EthereumProvider.init({
-        projectId: WALLETCONNECT_PROJECT_ID,
-        chains: [1], // Ethereum Mainnet
-        showQrModal: true,
-        metadata: {
-          name: "VoidList",
-          description: "Project submission payment",
-          url: window.location.origin,
-          icons: []
-        }
-      });
+    const { EthereumProvider } = await import(
+      "https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle"
+    );
 
-      await wcProvider.enable(); // MODERN WC UI
+    const wcProvider = await EthereumProvider.init({
+      projectId: WALLETCONNECT_PROJECT_ID,
+      chains: [1],
+      showQrModal: true,
+      qrModalOptions: {
+        themeMode: "dark"
+      }
+    });
 
-      console.log("✅ WalletConnect connected");
+    await wcProvider.enable(); // NOW MODAL OPENS ON TOP
 
-      const provider = new ethers.providers.Web3Provider(
-        wcProvider,
-        "any"
-      );
+    console.log("✅ WalletConnect connected");
 
-      await processPayment(provider);
+    const provider = new ethers.providers.Web3Provider(wcProvider, "any");
+    await processPayment(provider);
 
-    } catch (error) {
-      console.error("WalletConnect error:", error);
-      alert("WalletConnect connection failed");
-    }
-  });
+  } catch (error) {
+    console.error("WalletConnect error:", error);
+    alert("WalletConnect connection failed");
+  }
+});
 
   /************ PERSISTENCE ************/
   if (localStorage.getItem("projectSubmissionStatus") === "under_review") {
