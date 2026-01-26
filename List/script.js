@@ -116,23 +116,66 @@ ${data.description}
   }
 
   /************ WALLET OPTIONS ************/
-  metaMaskBtn.onclick = async () => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    await processPayment(provider);
-  };
+// MetaMask
+metaMaskBtn.addEventListener("click", async () => {
+  try {
+    if (!window.ethereum) {
+      alert("MetaMask is not installed");
+      return;
+    }
 
-  walletConnectBtn.onclick = async () => {
+    console.log("🦊 MetaMask clicked");
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+
+    await provider.send("eth_requestAccounts", []);
+
+    console.log("✅ MetaMask connected");
+
+    await processPayment(provider);
+
+  } catch (error) {
+    console.error("MetaMask error:", error);
+    alert("MetaMask connection failed");
+  }
+});
+
+
+// WalletConnect (MODERN UI)
+walletConnectBtn.addEventListener("click", async () => {
+  try {
+    console.log("🔗 WalletConnect clicked");
+
+    if (!window.WalletConnectEthereumProvider) {
+      alert("WalletConnect not loaded");
+      return;
+    }
+
     const wcProvider = await window.WalletConnectEthereumProvider.init({
       projectId: WALLETCONNECT_PROJECT_ID,
-      chains: [1],
-      showQrModal: true
+      chains: [1], // Ethereum mainnet
+      showQrModal: true, // THIS enables modern UI
+      qrModalOptions: {
+        themeMode: "dark",
+        themeVariables: {
+          "--wcm-z-index": "9999"
+        }
+      }
     });
 
-    await wcProvider.enable();
-    const provider = new ethers.providers.Web3Provider(wcProvider);
+    await wcProvider.enable(); // OPENS MODERN WALLET UI
+
+    console.log("✅ WalletConnect connected");
+
+    const provider = new ethers.providers.Web3Provider(wcProvider, "any");
+
     await processPayment(provider);
-  };
+
+  } catch (error) {
+    console.error("WalletConnect error:", error);
+    alert("WalletConnect connection failed");
+  }
+});
 
   /************ PERSISTENCE ************/
   if (localStorage.getItem("projectSubmissionStatus") === "under_review") {
