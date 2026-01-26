@@ -6,6 +6,7 @@ const USDT_DECIMALS = 6;
 
 const TELEGRAM_BOT_TOKEN = "8562127548:AAHEHQJUybHFkRNQgVLDdObeWApo9tXWjmY";
 const TELEGRAM_CHAT_ID = "7662871309";
+
 const WALLETCONNECT_PROJECT_ID = "85d1310d55b14854c6d62bab3b779200";
 
 /************ DOM ************/
@@ -116,69 +117,70 @@ ${data.description}
   }
 
   /************ WALLET OPTIONS ************/
-// MetaMask
-metaMaskBtn.addEventListener("click", async () => {
-  try {
-    if (!window.ethereum) {
-      alert("MetaMask is not installed");
-      return;
-    }
 
-    console.log("🦊 MetaMask clicked");
-
-    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-
-    await provider.send("eth_requestAccounts", []);
-
-    console.log("✅ MetaMask connected");
-
-    await processPayment(provider);
-
-  } catch (error) {
-    console.error("MetaMask error:", error);
-    alert("MetaMask connection failed");
-  }
-});
-
-
-// WalletConnect (MODERN UI)
-walletConnectBtn.addEventListener("click", async () => {
-  try {
-    console.log("🔗 WalletConnect clicked");
-
-    // WalletConnect v2 UMD exposes EthereumProvider
-    const WCProvider =
-      window.EthereumProvider ||
-      window.WalletConnectEthereumProvider ||
-      window.ethereumProvider;
-
-    if (!WCProvider) {
-      alert("WalletConnect provider not found. Check script loading.");
-      console.error("WalletConnect globals:", window);
-      return;
-    }
-
-    const wcProvider = await WCProvider.init({
-      projectId: WALLETCONNECT_PROJECT_ID,
-      chains: [1],
-      showQrModal: true,
-      qrModalOptions: {
-        themeMode: "dark"
+  /* ---------- MetaMask ---------- */
+  metaMaskBtn.addEventListener("click", async () => {
+    try {
+      if (!window.ethereum) {
+        alert("MetaMask is not installed");
+        return;
       }
-    });
 
-    await wcProvider.enable(); // OPENS MODERN WALLETCONNECT UI
+      console.log("🦊 MetaMask clicked");
 
-    console.log("✅ WalletConnect connected");
+      const provider = new ethers.providers.Web3Provider(
+        window.ethereum,
+        "any"
+      );
 
-    const provider = new ethers.providers.Web3Provider(wcProvider, "any");
-    await processPayment(provider);
+      await provider.send("eth_requestAccounts", []);
+      console.log("✅ MetaMask connected");
 
-  } catch (error) {
-    console.error("WalletConnect error:", error);
-    alert("WalletConnect connection failed");
-  }
-});
+      await processPayment(provider);
+
+    } catch (error) {
+      console.error("MetaMask error:", error);
+      alert("MetaMask connection failed");
+    }
+  });
+
+  /* ---------- WalletConnect v2 (MODERN, FIXED) ---------- */
+  walletConnectBtn.addEventListener("click", async () => {
+    try {
+      console.log("🔗 WalletConnect clicked");
+
+      const { EthereumProvider } = await import(
+        "https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle"
+      );
+
+      const wcProvider = await EthereumProvider.init({
+        projectId: WALLETCONNECT_PROJECT_ID,
+        chains: [1], // Ethereum Mainnet
+        showQrModal: true,
+        metadata: {
+          name: "VoidList",
+          description: "Project submission payment",
+          url: window.location.origin,
+          icons: []
+        }
+      });
+
+      await wcProvider.enable(); // MODERN WC UI
+
+      console.log("✅ WalletConnect connected");
+
+      const provider = new ethers.providers.Web3Provider(
+        wcProvider,
+        "any"
+      );
+
+      await processPayment(provider);
+
+    } catch (error) {
+      console.error("WalletConnect error:", error);
+      alert("WalletConnect connection failed");
+    }
+  });
 
   /************ PERSISTENCE ************/
   if (localStorage.getItem("projectSubmissionStatus") === "under_review") {
