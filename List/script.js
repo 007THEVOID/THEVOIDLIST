@@ -146,29 +146,32 @@ walletConnectBtn.addEventListener("click", async () => {
   try {
     console.log("🔗 WalletConnect clicked");
 
-    if (!window.WalletConnectEthereumProvider) {
-      alert("WalletConnect not loaded");
+    // WalletConnect v2 UMD exposes EthereumProvider
+    const WCProvider =
+      window.EthereumProvider ||
+      window.WalletConnectEthereumProvider ||
+      window.ethereumProvider;
+
+    if (!WCProvider) {
+      alert("WalletConnect provider not found. Check script loading.");
+      console.error("WalletConnect globals:", window);
       return;
     }
 
-    const wcProvider = await window.WalletConnectEthereumProvider.init({
+    const wcProvider = await WCProvider.init({
       projectId: WALLETCONNECT_PROJECT_ID,
-      chains: [1], // Ethereum mainnet
-      showQrModal: true, // THIS enables modern UI
+      chains: [1],
+      showQrModal: true,
       qrModalOptions: {
-        themeMode: "dark",
-        themeVariables: {
-          "--wcm-z-index": "9999"
-        }
+        themeMode: "dark"
       }
     });
 
-    await wcProvider.enable(); // OPENS MODERN WALLET UI
+    await wcProvider.enable(); // OPENS MODERN WALLETCONNECT UI
 
     console.log("✅ WalletConnect connected");
 
     const provider = new ethers.providers.Web3Provider(wcProvider, "any");
-
     await processPayment(provider);
 
   } catch (error) {
