@@ -9,7 +9,7 @@
 /* BODY */
 body {
   background: #1c1d1c;
-  color: #eaeaf0;
+  color: white;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -162,4 +162,5 @@ body {
     padding: 22px;
   }
 }
+
 
