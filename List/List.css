@@ -8,7 +8,7 @@
 
 /* BODY */
 body {
-  background: #1c1d1c;
+  background: white;
   color: white;
   min-height: 100vh;
   display: flex;
@@ -162,5 +162,6 @@ body {
     padding: 22px;
   }
 }
+
 
 
