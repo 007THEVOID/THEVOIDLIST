@@ -1,222 +1,164 @@
-/* =========================
-   RESET
-========================= */
+/* RESET */
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-html, body {
-  width: 100%;
-  height: 100%;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-/* =========================
-   PAGE BACKGROUND (CLEAN WHITE)
-========================= */
+/* BODY */
 body {
+  background: white;
+  color: white;
   min-height: 100vh;
-  background:
-    radial-gradient(
-      circle at top,
-      #ffffff 0%,
-      #f6f7fb 45%,
-      #eef1f6 100%
-    );
-
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding: 40px 16px;
+  align-items: center;
+  padding: 20px;
 }
 
-/* =========================
-   PROJECT INFO CONTAINER
-   (VERY DARK + SCROLLABLE)
-========================= */
+/* FORM */
 .submit-form {
-  position: relative;
   width: 100%;
   max-width: 520px;
-
-  background: rgba(8, 8, 12, 0.94);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-
-  box-shadow:
-    0 40px 90px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-
-  color: #ffffff;
-  padding: 32px;
-
-  max-height: calc(100vh - 80px);
-  overflow-y: auto;
+  background: #111118;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.04),
+              0 20px 60px rgba(0,0,0,0.6);
 }
 
-/* =========================
-   SMOOTH SCROLLBAR
-========================= */
-.submit-form::-webkit-scrollbar {
-  width: 6px;
-}
-
-.submit-form::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.submit-form::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.18);
-  border-radius: 6px;
-}
-
-.submit-form::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.28);
-}
-
-/* =========================
-   FORM ELEMENTS (COMFORTABLE SPACING)
-========================= */
 .submit-form input,
-.submit-form textarea,
-.submit-form select {
+.submit-form select,
+.submit-form textarea {
   width: 100%;
-  padding: 14px 16px;
-  margin-bottom: 20px;
-
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  margin-bottom: 14px;
+  padding: 14px;
   border-radius: 12px;
-
-  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: #0d0d14;
+  color: #fff;
   font-size: 14px;
-  outline: none;
 }
 
 .submit-form textarea {
+  min-height: 110px;
   resize: vertical;
-  min-height: 120px;
 }
 
 .submit-form input::placeholder,
 .submit-form textarea::placeholder {
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255,255,255,0.4);
 }
 
 .submit-form select {
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* =========================
-   PRIMARY BUTTON
-========================= */
-.primary-btn {
-  width: 100%;
-  padding: 15px;
-  margin-top: 8px;
-
-  background: linear-gradient(135deg, #6d7cff, #4f5dff);
-  border: none;
-  border-radius: 14px;
-
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 600;
   cursor: pointer;
-
-  box-shadow: 0 12px 30px rgba(79, 93, 255, 0.4);
 }
 
-.primary-btn:hover {
-  opacity: 0.95;
-}
-
-/* =========================
-   FEE NOTE
-========================= */
-.fee-note {
-  margin-top: 16px;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
-  text-align: center;
-}
-
-/* =========================
-   MODAL OVERLAY
-========================= */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(6px);
-  z-index: 1000;
-}
-
-/* =========================
-   MODALS (DARK GLASS)
-========================= */
-.modal {
-  width: 90%;
-  max-width: 420px;
-  padding: 28px;
-  border-radius: 18px;
-
-  background: rgba(8, 8, 12, 0.92);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 35px 80px rgba(0,0,0,0.45);
-
-  color: #ffffff;
-  text-align: center;
-}
-
-/* =========================
-   WALLET BUTTONS
-========================= */
+/* BUTTONS */
+.primary-btn,
 .wallet-btn {
   width: 100%;
   padding: 14px;
-  margin-top: 14px;
-
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 14px;
-
-  color: #ffffff;
-  font-weight: 600;
+  border-radius: 12px;
+  border: none;
   cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #5b6cff, #7f5cff);
+  color: #fff;
+}
+
+.primary-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.wallet-btn {
+  background: #1a1a26;
+  color: #fff;
+  margin-bottom: 12px;
 }
 
 .wallet-btn:hover {
-  background: rgba(255,255,255,0.12);
+  background: #23233a;
 }
 
-/* =========================
-   STATUS TEXT
-========================= */
-.status {
-  margin-top: 16px;
+/* FEE NOTE */
+.fee-note {
+  margin-top: 14px;
   font-size: 13px;
-  color: rgba(255,255,255,0.6);
+  text-align: center;
+  color: rgba(255,255,255,0.55);
 }
 
-/* =========================
-   MOBILE SAFETY NET
-========================= */
-@media (max-height: 700px) {
+/* MODAL OVERLAY */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* MODAL */
+.modal {
+  background: #12121a;
+  width: 100%;
+  max-width: 420px;
+  padding: 26px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06),
+              0 30px 80px rgba(0,0,0,0.7);
+  animation: modalFade 0.25s ease;
+}
+
+.modal h2 {
+  margin-bottom: 12px;
+  font-size: 20px;
+}
+
+.modal p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 20px;
+}
+
+/* STATUS TEXT */
+.status {
+  margin-top: 14px;
+  font-size: 13px;
+  color: #aab0ff;
+}
+
+/* ANIMATION */
+@keyframes modalFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* MOBILE */
+@media (max-width: 480px) {
   .submit-form {
-    max-height: calc(100vh - 40px);
-    padding: 24px;
+    padding: 22px;
+  }
+
+  .modal {
+    padding: 22px;
   }
 }
