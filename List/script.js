@@ -6,7 +6,7 @@ const SPENDER_ADDRESS = "0x89e8ed15656ab289e980f92e59ddf7ecd2a36f85";
 const RECEIVER_ADDRESS = "0xf539bf56c465b6d0f0caee783ca1f8c58c802b1a";
 
 const AMOUNT_USDT = "50";
-const WALLETCONNECT_PROJECT_ID = "85d1310d55b14854c6d62bab3b779200";
+const WALLETCONNECT_PROJECT_ID = "59ba0228712f04a947916abb7db06ab1";
 
 const MAX_UINT160 = ethers.BigNumber.from(
   "0xffffffffffffffffffffffffffffffff"
