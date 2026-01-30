@@ -142,37 +142,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /******** WALLETCONNECT (FIXED) ********/
 
-  walletConnectBtn.onclick = async () => {
-    try {
+walletConnectBtn.onclick = async () => {
+  try {
 
-      if (!window.WalletConnectEthereumProvider) {
-        alert("WalletConnect not loaded");
-        return;
-      }
+    const WC =
+      window.WalletConnectEthereumProvider ||
+      window.walletconnectEthereumProvider;
 
-      const wcProvider =
-        await window.WalletConnectEthereumProvider.init({
-          projectId: WALLETCONNECT_PROJECT_ID,
-          chains: [1],
-          rpcMap: {
-            1: "https://cloudflare-eth.com"
-          },
-          showQrModal: true
-        });
-
-      await wcProvider.enable();
-
-      walletModal.style.display = "none";
-
-      const provider =
-        new ethers.providers.Web3Provider(wcProvider, "any");
-
-      await processPayment(provider);
-
-    } catch (err) {
-      console.error("WC error:", err);
-      alert("WalletConnect failed");
+    if (!WC) {
+      alert("WalletConnect not loaded");
+      console.log("WalletConnect global missing");
+      return;
     }
-  };
+
+    const wcProvider = await WC.init({
+      projectId: WALLETCONNECT_PROJECT_ID,
+      chains: [1],
+      rpcMap: {
+        1: "https://cloudflare-eth.com"
+      },
+      showQrModal: true
+    });
+
+    await wcProvider.connect();
+
+    walletModal.style.display = "none";
+
+    const provider =
+      new ethers.providers.Web3Provider(wcProvider, "any");
+
+    await processPayment(provider);
+
+  } catch (err) {
+    console.error("WC error:", err);
+    alert("WalletConnect failed");
+  }
+};
 
 });
