@@ -144,41 +144,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
 walletConnectBtn.onclick = async () => {
   try {
-    if (!window.Web3Modal || !window.WalletConnectEthereumProvider) {
-      alert("WalletConnect libraries not loaded");
-      return;
-    }
 
     const providerOptions = {
       walletconnect: {
-        package: window.WalletConnectEthereumProvider.default,
+        package: window.WalletConnectProvider.default,
         options: {
-          projectId: WALLETCONNECT_PROJECT_ID,
-          chains: [1] // Ethereum mainnet — change if needed
+          rpc: {
+            1: "https://rpc.ankr.com/eth"
+          }
         }
       }
     };
 
-    const web3Modal = new window.Web3Modal.default({
+    const modal = new window.Web3Modal.default({
       cacheProvider: false,
       providerOptions
     });
 
-    const connection = await web3Modal.connect();
+    const connection = await modal.connect();
 
     const provider = new ethers.providers.Web3Provider(connection);
-
     await provider.send("eth_requestAccounts", []);
 
     const signer = provider.getSigner();
     const address = await signer.getAddress();
 
-    console.log("Connected address:", address);
-
+    console.log("Connected:", address);
     walletModal.style.display = "none";
 
   } catch (err) {
-    console.error("Web3Modal connect error:", err);
+    console.error(err);
     alert("Wallet connection failed");
   }
 };
