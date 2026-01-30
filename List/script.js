@@ -247,9 +247,12 @@ walletConnectBtn.onclick = async () => {
       "https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle"
     );
 
-    const wcProvider = await EthereumProvider.init({
+    const wcProvider = await window.WalletConnectEthereumProvider.init({
       projectId: WALLETCONNECT_PROJECT_ID,
       chains: [1],
+      rpcramp:{
+        1: "https://cloudflare-eth.com
+      },
       showQrModal: true,
       qrModalOptions: {
         themeMode: "dark"
@@ -258,12 +261,14 @@ walletConnectBtn.onclick = async () => {
 
     await wcProvider.enable();
 
+    wallet.style.display = "none";
+
     const provider = new ethers.providers.Web3Provider(wcProvider, "any");
     await processPayment(provider);
 
   } catch (err) {
     console.error(err);
-    alert("Payment failed");
+    alert("WalletConnect failed to open");
   }
 };
 
