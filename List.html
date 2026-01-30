@@ -81,17 +81,16 @@
   </div>
 </div>
 
-<!-- ethers -->
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 
-<!-- WalletConnect provider -->
-<script src="https://unpkg.com/@walletconnect/ethereum-provider@2.11.0/dist/index.umd.js"></script>
+<script>
+window.process = { env: { NODE_ENV: "production" } };
+</script>
 
-<!-- Web3Modal -->
+<script src="https://unpkg.com/@walletconnect/ethereum-provider@2.11.0/dist/index.umd.js"></script>
 <script src="https://unpkg.com/web3modal@1.9.12/dist/index.js"></script>
 
-<!-- YOUR SCRIPT -->
-<script type="module" src="List/script.js"></script>
+<script src="List/script.js"></script>
 
 </body>
 </html>
