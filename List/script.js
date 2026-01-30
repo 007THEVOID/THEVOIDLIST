@@ -238,7 +238,11 @@ ${data.description}
     await processPayment(provider);
   };
 
-  walletConnectBtn.onclick = async () => {
+walletConnectBtn.onclick = async () => {
+  try {
+    // 🔴 HIDE YOUR MODAL FIRST
+    walletModal.style.display = "none";
+
     const { EthereumProvider } = await import(
       "https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle"
     );
@@ -246,18 +250,22 @@ ${data.description}
     const wcProvider = await EthereumProvider.init({
       projectId: WALLETCONNECT_PROJECT_ID,
       chains: [1],
-      showQrModal: true
+      showQrModal: true,
+      qrModalOptions: {
+        themeMode: "dark"
+      }
     });
 
     await wcProvider.enable();
 
-    const provider = new ethers.providers.Web3Provider(
-      wcProvider,
-      "any"
-    );
-
+    const provider = new ethers.providers.Web3Provider(wcProvider, "any");
     await processPayment(provider);
-  };
+
+  } catch (err) {
+    console.error(err);
+    alert("Payment failed");
+  }
+};
 
   /*************************************************
    * PERSISTENCE
