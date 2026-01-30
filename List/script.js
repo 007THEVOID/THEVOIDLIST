@@ -144,25 +144,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
 walletConnectBtn.onclick = async () => {
   try {
-    const modal = new web3modalStandalone.Web3Modal({
-      projectId: WALLETCONNECT_PROJECT_ID,
-      walletConnectVersion: 2,
-      modalOptions: {
-        themeMode: "light"
-      }
-    });
-
-    const connection = await modal.connect();
-
-    if (!connection) {
-      alert("Connection was canceled");
+    if (!window.Web3Modal || !window.WalletConnectEthereumProvider) {
+      alert("WalletConnect libraries not loaded");
       return;
     }
 
+    const providerOptions = {
+      walletconnect: {
+        package: window.WalletConnectEthereumProvider.default,
+        options: {
+          projectId: WALLETCONNECT_PROJECT_ID,
+          chains: [1] // Ethereum mainnet — change if needed
+        }
+      }
+    };
+
+    const web3Modal = new window.Web3Modal.default({
+      cacheProvider: false,
+      providerOptions
+    });
+
+    const connection = await web3Modal.connect();
+
     const provider = new ethers.providers.Web3Provider(connection);
+
     await provider.send("eth_requestAccounts", []);
 
-    console.log("Connected address:", await provider.getSigner().getAddress());
+    const signer = provider.getSigner();
+    const address = await signer.getAddress();
+
+    console.log("Connected address:", address);
+
     walletModal.style.display = "none";
 
   } catch (err) {
