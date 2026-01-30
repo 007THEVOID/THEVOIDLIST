@@ -144,34 +144,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
 walletConnectBtn.onclick = async () => {
   try {
-    // Dynamically load WalletConnect provider (no globals needed)
-    const { default: EthereumProvider } = await import(
-      "https://esm.sh/@walletconnect/ethereum-provider@2"
-    );
-
-    const wcProvider = await EthereumProvider.init({
-      projectId: WALLETCONNECT_PROJECT_ID, // keep your existing constant
-      chains: [1],
-      rpcMap: {
-        1: "https://cloudflare-eth.com"
-      },
-      showQrModal: true
+    const modal = new web3modalStandalone.Web3Modal({
+      projectId: WALLETCONNECT_PROJECT_ID,
+      walletConnectVersion: 2,
+      modalOptions: {
+        themeMode: "light"
+      }
     });
 
-    await wcProvider.connect();
+    const connection = await modal.connect();
 
-    provider = new ethers.providers.Web3Provider(wcProvider);
-    signer = provider.getSigner();
-    userAddress = await signer.getAddress();
+    if (!connection) {
+      alert("Connection was canceled");
+      return;
+    }
 
-    connectWalletBtn.style.display = "none";
+    const provider = new ethers.providers.Web3Provider(connection);
+    await provider.send("eth_requestAccounts", []);
+
+    console.log("Connected address:", await provider.getSigner().getAddress());
     walletModal.style.display = "none";
 
-    console.log("WalletConnect connected:", userAddress);
-
   } catch (err) {
-    console.error("WalletConnect failed:", err);
-    alert("WalletConnect failed to initialize");
+    console.error("Web3Modal connect error:", err);
+    alert("Wallet connection failed");
   }
 };
 
