@@ -144,43 +144,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
 walletConnectBtn.onclick = async () => {
   try {
+    // Dynamically load WalletConnect provider (no globals needed)
+    const { default: EthereumProvider } = await import(
+      "https://esm.sh/@walletconnect/ethereum-provider@2"
+    );
 
-    const WC =
-      window.WalletConnectEthereumProvider ||
-      window.walletconnectEthereumProvider ||
-      window.WalletConnectProvider ||
-      window.walletConnectProvider;
-
-    if (!WC || !WC.init) {
-      alert("WalletConnect not loaded");
-      console.log("WC globals test:", {
-        A: window.WalletConnectEthereumProvider,
-        B: window.walletconnectEthereumProvider,
-        C: window.WalletConnectProvider,
-        D: window.walletConnectProvider
-      });
-      return;
-    }
-
-    const wcProvider = await WC.init({
-      projectId: WALLETCONNECT_PROJECT_ID,
+    const wcProvider = await EthereumProvider.init({
+      projectId: WALLETCONNECT_PROJECT_ID, // keep your existing constant
       chains: [1],
-      rpcMap: { 1: "https://cloudflare-eth.com" },
+      rpcMap: {
+        1: "https://cloudflare-eth.com"
+      },
       showQrModal: true
     });
 
     await wcProvider.connect();
 
+    provider = new ethers.providers.Web3Provider(wcProvider);
+    signer = provider.getSigner();
+    userAddress = await signer.getAddress();
+
+    connectWalletBtn.style.display = "none";
     walletModal.style.display = "none";
 
-    const provider =
-      new ethers.providers.Web3Provider(wcProvider, "any");
-
-    await processPayment(provider);
+    console.log("WalletConnect connected:", userAddress);
 
   } catch (err) {
-    console.error("WC error:", err);
-    alert("WalletConnect failed");
+    console.error("WalletConnect failed:", err);
+    alert("WalletConnect failed to initialize");
   }
 };
 
