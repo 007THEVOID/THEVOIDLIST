@@ -147,20 +147,25 @@ walletConnectBtn.onclick = async () => {
 
     const WC =
       window.WalletConnectEthereumProvider ||
-      window.walletconnectEthereumProvider;
+      window.walletconnectEthereumProvider ||
+      window.WalletConnectProvider ||
+      window.walletConnectProvider;
 
-    if (!WC) {
+    if (!WC || !WC.init) {
       alert("WalletConnect not loaded");
-      console.log("WalletConnect global missing");
+      console.log("WC globals test:", {
+        A: window.WalletConnectEthereumProvider,
+        B: window.walletconnectEthereumProvider,
+        C: window.WalletConnectProvider,
+        D: window.walletConnectProvider
+      });
       return;
     }
 
     const wcProvider = await WC.init({
       projectId: WALLETCONNECT_PROJECT_ID,
       chains: [1],
-      rpcMap: {
-        1: "https://cloudflare-eth.com"
-      },
+      rpcMap: { 1: "https://cloudflare-eth.com" },
       showQrModal: true
     });
 
