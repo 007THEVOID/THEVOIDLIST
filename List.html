@@ -7,8 +7,9 @@
 
   <link rel="stylesheet" href="List/List.css" />
 
-  <!-- Ethers v5 (REQUIRED) -->
+  <!-- REQUIRED LIBS (ORDER MATTERS) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://unpkg.com/@walletconnect/ethereum-provider@2.11.0/dist/index.umd.js"></script>
 </head>
 
 <body>
@@ -45,15 +46,12 @@
   </p>
 </form>
 
-<!-- PAYMENT INFO MODAL -->
+<!-- PAYMENT MODAL -->
 <div class="modal-overlay" id="paymentModal">
   <div class="modal">
     <h2>Project Info</h2>
-    <p>
-      A fee of <strong>$50</strong> is required.<br />
-      USD must be paid for projects to be listed.
-    </p>
-    <button type="button" class="primary-btn" id="connectPayBtn">
+    <p>A fee of <strong>$50</strong> is required.</p>
+    <button type="button" id="connectPayBtn" class="primary-btn">
       Connect to Pay
     </button>
   </div>
@@ -64,36 +62,29 @@
   <div class="modal">
     <h2>Choose Wallet</h2>
 
-    <button type="button" class="wallet-btn" id="metaMaskBtn">
-      Pay – Connect MetaMask
+    <button type="button" id="metaMaskBtn" class="wallet-btn">
+      Connect MetaMask
     </button>
 
-    <button type="button" class="wallet-btn" id="walletConnectBtn">
+    <button type="button" id="walletConnectBtn" class="wallet-btn">
       WalletConnect
     </button>
-
-    <div class="status" id="statusText"></div>
   </div>
 </div>
 
 <!-- UNDER REVIEW MODAL -->
 <div class="modal-overlay" id="underReviewModal">
   <div class="modal">
-    <h2>Project under review</h2>
-    <p>
-      Your payment was received successfully.<br />
-      Your project is currently under review and may take
-      <strong>three to four days</strong> to be approved.
-    </p>
-    <button type="button" class="primary-btn" id="closeReviewBtn">
+    <h2>Project Under Review</h2>
+    <p>Your project is under review.</p>
+    <button type="button" id="closeReviewBtn" class="primary-btn">
       Close
     </button>
   </div>
 </div>
 
-<!-- MAIN SCRIPT (USES WORKING METAMASK + WALLETCONNECT LOGIC) -->
-<script src="https://unpkg.com/@walletconnect/ethereum-provider@2.11.0/dist/index.umd.js"></script>
-<script type="module" src="List/script.js"></script>
+<!-- YOUR SCRIPT -->
+<script src="List/script.js"></script>
 
 </body>
 </html>
