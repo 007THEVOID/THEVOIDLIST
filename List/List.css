@@ -1,164 +1,115 @@
-/* RESET */
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* BODY */
 body {
-  background: white;
-  color: white;
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #f2f2f2; /* smoke white */
+}
+
+.page {
   min-height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 20px;
+  justify-content: center;
+  padding: 24px;
 }
 
-/* FORM */
-.submit-form {
+.card {
+  background: #0f0f0f;
+  color: #fff;
   width: 100%;
-  max-width: 520px;
-  background: #111118;
+  max-width: 900px;
   padding: 28px;
-  border-radius: 16px;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.04),
-              0 20px 60px rgba(0,0,0,0.6);
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
 }
 
-.submit-form input,
-.submit-form select,
-.submit-form textarea {
-  width: 100%;
-  margin-bottom: 14px;
-  padding: 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: #0d0d14;
-  color: #fff;
-  font-size: 14px;
-}
-
-.submit-form textarea {
-  min-height: 110px;
-  resize: vertical;
-}
-
-.submit-form input::placeholder,
-.submit-form textarea::placeholder {
-  color: rgba(255,255,255,0.4);
-}
-
-.submit-form select {
-  cursor: pointer;
-}
-
-/* BUTTONS */
-.primary-btn,
-.wallet-btn {
-  width: 100%;
-  padding: 14px;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 15px;
-  transition: all 0.2s ease;
-}
-
-.primary-btn {
-  background: linear-gradient(135deg, #5b6cff, #7f5cff);
-  color: #fff;
-}
-
-.primary-btn:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.wallet-btn {
-  background: #1a1a26;
-  color: #fff;
-  margin-bottom: 12px;
-}
-
-.wallet-btn:hover {
-  background: #23233a;
-}
-
-/* FEE NOTE */
-.fee-note {
-  margin-top: 14px;
-  font-size: 13px;
+h2 {
   text-align: center;
-  color: rgba(255,255,255,0.55);
+  margin-bottom: 24px;
 }
 
-/* MODAL OVERLAY */
-.modal-overlay {
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background: #1a1a1a;
+  color: #fff;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #7a7a7a;
+}
+
+textarea {
+  margin-top: 14px;
+  min-height: 110px;
+}
+
+.btn-primary {
+  margin-top: 20px;
+  padding: 14px;
+  width: 100%;
+  background: #5b2dbd;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #6e3fe0;
+}
+
+.btn-secondary {
+  margin-top: 10px;
+  padding: 12px;
+  width: 100%;
+  background: #2a2a2a;
+  border: none;
+  border-radius: 10px;
+  color: #ccc;
+  cursor: pointer;
+}
+
+/* MODALS */
+.modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
-  display: none;
+  background: rgba(0,0,0,0.65);
+  display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 20px;
+  z-index: 9999;
 }
 
-/* MODAL */
-.modal {
-  background: #12121a;
-  width: 100%;
-  max-width: 420px;
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: #0f0f0f;
+  color: #fff;
   padding: 26px;
-  border-radius: 18px;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 420px;
   text-align: center;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.06),
-              0 30px 80px rgba(0,0,0,0.7);
-  animation: modalFade 0.25s ease;
 }
 
-.modal h2 {
-  margin-bottom: 12px;
-  font-size: 20px;
-}
-
-.modal p {
-  font-size: 14px;
-  line-height: 1.6;
-  color: rgba(255,255,255,0.75);
-  margin-bottom: 20px;
-}
-
-/* STATUS TEXT */
-.status {
-  margin-top: 14px;
-  font-size: 13px;
-  color: #aab0ff;
-}
-
-/* ANIMATION */
-@keyframes modalFade {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* MOBILE */
 @media (max-width: 480px) {
-  .submit-form {
-    padding: 22px;
-  }
-
-  .modal {
-    padding: 22px;
+  .card {
+    padding: 20px;
   }
 }
