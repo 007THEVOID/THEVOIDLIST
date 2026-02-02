@@ -1,99 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>VoidList – Submit Project</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-<link rel="stylesheet" href="List/List.css" />
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Token Listing Submission</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<form id="projectForm" class="submit-form" novalidate>
+<main class="page">
+  <form id="projectForm" class="card">
+    <h2>Submit Your Project</h2>
 
-<input name="projectName" placeholder="Project Name" required />
-<input name="tokenSymbol" placeholder="Token Symbol" required />
+    <div class="grid">
+      <input placeholder="Project Name" required />
+      <input placeholder="Project Symbol" required />
+      <select required>
+        <option value="">Select Chain</option>
+        <option>Ethereum</option>
+        <option>BNB Chain</option>
+        <option>Polygon</option>
+        <option>Arbitrum</option>
+      </select>
+      <input placeholder="Contract Address" required />
+      <input placeholder="Total Supply" />
+      <input placeholder="Circulating Supply" />
+    </div>
 
-<select name="blockchain" required>
-<option value="">Select Blockchain</option>
-<option>Ethereum</option>
-<option>BSC</option>
-<option>Polygon</option>
-<option>Arbitrum</option>
-</select>
+    <textarea placeholder="Other necessary information"></textarea>
 
-<input name="contract" placeholder="Contract Address" required />
-<textarea name="description" placeholder="Project Description" required></textarea>
+    <div class="grid">
+      <input placeholder="Developer Name" required />
+      <input type="email" placeholder="Developer Email" required />
+    </div>
 
-<input name="website" placeholder="Website URL" />
-<input name="twitter" placeholder="Twitter / X URL" />
-<input name="telegram" placeholder="Telegram URL" />
+    <button type="submit" class="btn-primary">Submit</button>
+  </form>
+</main>
 
-<input name="devName" placeholder="Developer Name" required />
-<input name="devEmail" placeholder="Developer Email" required />
-
-<button type="submit" class="primary-btn">
-Submit Project
-</button>
-
-<p class="fee-note">
-A fee of $50 USDT (ERC-20) must be paid to list your project.
-</p>
-
-</form>
-
-<!-- PAYMENT MODAL -->
-<div class="modal-overlay" id="paymentModal">
-<div class="modal">
-<h2>Project Info</h2>
-<p>A fee of <strong>$50 USDT</strong> is required.</p>
-<button type="button" id="connectPayBtn" class="primary-btn">
-Connect to Pay
-</button>
-</div>
+<!-- Fee Modal -->
+<div id="feeModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Listing Fee</h3>
+    <p><strong>50 USDT (ERC-20)</strong> required</p>
+    <button id="payBtn" class="btn-primary">Pay</button>
+    <button class="btn-secondary close">Cancel</button>
+  </div>
 </div>
 
-<!-- WALLET MODAL -->
-<div class="modal-overlay" id="walletModal">
-<div class="modal">
-<h2>Choose Wallet</h2>
-
-<button type="button" id="metaMaskBtn" class="wallet-btn">
-MetaMask
-</button>
-
-<button type="button" id="walletConnectBtn" class="wallet-btn">
-WalletConnect
-</button>
-
-</div>
+<!-- Wallet Modal -->
+<div id="walletModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Connect Wallet</h3>
+    <button id="mmBtn" class="btn-primary">Connect MetaMask</button>
+    <button id="wcBtn" class="btn-primary">WalletConnect</button>
+    <button class="btn-secondary close">Close</button>
+  </div>
 </div>
 
-<!-- UNDER REVIEW -->
-<div class="modal-overlay" id="underReviewModal">
-<div class="modal">
-<h2>Project Under Review</h2>
-<p>Your project was submitted and payment received.</p>
-<button type="button" id="closeReviewBtn" class="primary-btn">
-Close
-</button>
-</div>
+<!-- Success Modal -->
+<div id="successModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Submission Received</h3>
+    <p>Project info received and is under review.</p>
+    <button class="btn-primary close">Done</button>
+  </div>
 </div>
 
-<!-- ETHERS V5 -->
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-
-<!-- WalletConnect UMD (ADDED — REQUIRED) -->
-<script src="https://unpkg.com/@walletconnect/ethereum-provider@2.21.8/dist/index.umd.js"></script>
-
-<!-- process shim -->
-<script>
-window.process = { env: { NODE_ENV: "production" } };
-</script>
-
-<!-- your script -->
-<script src="List/script.js"></script>
-
+<script type="module" src="app.js"></script>
 </body>
 </html>
