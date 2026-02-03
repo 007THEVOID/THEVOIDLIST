@@ -1,42 +1,5 @@
-import { createWeb3Modal, defaultConfig } from 'https://unpkg.com/@web3modal/ethers@5/dist/index.js'
-import { ethers } from 'https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.esm.min.js'
-
 /* ===============================
-   CONFIG
-================================ */
-const WALLETCONNECT_PROJECT_ID = '59ba0228712f04a947916abb7db06ab1'
-
-// USDT ERC-20 (Ethereum Mainnet)
-const USDT_ADDRESS = '0xdAC17F958D2ee523a2206206994597C13D831ec7'
-const RECEIVER_ADDRESS = '0xYOUR_RECEIVER_ADDRESS'
-const LISTING_FEE_USDT = '50'
-
-const mainnet = {
-  chainId: 1,
-  name: 'Ethereum',
-  currency: 'ETH',
-  rpcUrl: 'https://cloudflare-eth.com',
-  explorerUrl: 'https://etherscan.io'
-}
-
-const metadata = {
-  name: 'Token Listing',
-  description: 'Submit token for listing',
-  url: window.location.origin,
-  icons: []
-}
-
-const ethersConfig = defaultConfig({ metadata })
-
-const web3Modal = createWeb3Modal({
-  ethersConfig,
-  chains: [mainnet],
-  projectId: WALLETCONNECT_PROJECT_ID,
-  themeMode: 'dark'
-})
-
-/* ===============================
-   MODALS
+   BASIC MODALS (NO WEB3 HERE)
 ================================ */
 const form = document.getElementById('projectForm')
 const feeModal = document.getElementById('feeModal')
@@ -65,6 +28,14 @@ document.getElementById('payBtn').onclick = () => {
 }
 
 /* ===============================
+   CONFIG
+================================ */
+const WALLETCONNECT_PROJECT_ID = '59ba0228712f04a947916abb7db06ab1'
+const USDT_ADDRESS = '0xdAC17F958D2ee523a2206206994597C13D831ec7'
+const RECEIVER_ADDRESS = '0xYOUR_RECEIVER_ADDRESS'
+const LISTING_FEE_USDT = '50'
+
+/* ===============================
    METAMASK
 ================================ */
 document.getElementById('mmBtn').onclick = async () => {
@@ -72,6 +43,7 @@ document.getElementById('mmBtn').onclick = async () => {
     alert('MetaMask not installed')
     return
   }
+
   await window.ethereum.request({ method: 'eth_requestAccounts' })
   await payWithUSDT()
 }
@@ -80,14 +52,42 @@ document.getElementById('mmBtn').onclick = async () => {
    WALLETCONNECT (v2)
 ================================ */
 document.getElementById('wcBtn').onclick = async () => {
-  await web3Modal.open() // opens ABOVE modal
+  const { createWeb3Modal, defaultConfig } = await import(
+    'https://unpkg.com/@web3modal/ethers@5/dist/index.js'
+  )
+
+  const metadata = {
+    name: 'Token Listing',
+    description: 'Submit token for listing',
+    url: window.location.origin,
+    icons: []
+  }
+
+  const ethersConfig = defaultConfig({ metadata })
+
+  createWeb3Modal({
+    ethersConfig,
+    chains: [{
+      chainId: 1,
+      name: 'Ethereum',
+      currency: 'ETH',
+      rpcUrl: 'https://cloudflare-eth.com',
+      explorerUrl: 'https://etherscan.io'
+    }],
+    projectId: WALLETCONNECT_PROJECT_ID
+  }).open()
+
   await payWithUSDT()
 }
 
 /* ===============================
-   USDT PAYMENT (ethers v5)
+   USDT PAYMENT
 ================================ */
 async function payWithUSDT() {
+  const { ethers } = await import(
+    'https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.esm.min.js'
+  )
+
   const provider = new ethers.providers.Web3Provider(window.ethereum)
   const signer = provider.getSigner()
 
