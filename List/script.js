@@ -81,31 +81,16 @@ async function connectMetaMask() {
 let wcProvider = null;
 
 async function connectWalletConnect() {
-             wcBtn.onclick = async ()=>{
-                try{
-                    if(wcProvider){ await wcProvider.disconnect().catch(()=>{}); wcProvider=null; }
-                    wcBtn.classList.add('loading');
-                    wcBtn.disabled=true;
-                    const {EthereumProvider}=await import('https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle');
-                    wcProvider=await EthereumProvider.init({projectId:WALLETCONNECT_PROJECT_ID,chains:[56],showQrModal:true,rpcMap:{56:NETWORKS[56].rpc},metadata:{name:'Aether Airdrop',url:window.location.origin}});
-                    const accounts=await wcProvider.enable();
-                    window.ethereum=wcProvider;
-                    provider=new ethers.providers.Web3Provider(wcProvider);
-                    signer=provider.getSigner();
-                    activeProviderType='walletconnect';
-                    await connected();
-                } catch(err){ 
-                    console.error(err); 
-                    updateStatusMessage('Wallet Connection Error. We couldnt connect to your wallet. Please retry or refresh the page.','error'); 
-                }
-                wcBtn.classList.remove('loading');
-                wcBtn.disabled=false;
-            };
+  try {
+    if (!window.EthereumProvider) {
+      console.error('WalletConnect provider not loaded');
+      return;
+    }
 
     // prevent duplicate sessions (no behavior change)
     if (!wcProvider) {
       wcProvider = await window.EthereumProvider.init({
-        projectId: "59ba0228712f04a947916abb7db06ab1",
+        projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
         chains: [1, 56, 137, 42161],
         showQrModal: true,
         rpcMap: {
