@@ -77,8 +77,6 @@ label {
  color: #555;
 }
 
-
-
 button {
  padding: 10px;
  background-color: #6e3fe0;
@@ -104,7 +102,7 @@ button:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 1000; /* lowered so WalletConnect modal sits above */
   animation: modalFadeIn 0.25s ease-out;
 }
 
@@ -226,7 +224,6 @@ button:hover {
   z-index: 20000 !important;
 }
 
-
 /* Animations */
 @keyframes modalFadeIn {
   from {
@@ -245,7 +242,6 @@ button:hover {
 
 @media (max-width: 600px) {
  .container {
- padding: 15px;
+   padding: 15px;
  }
 }
-
