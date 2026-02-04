@@ -90,7 +90,7 @@ async function connectWalletConnect() {
     // prevent duplicate sessions (no behavior change)
     if (!wcProvider) {
       wcProvider = await window.EthereumProvider.init({
-        projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+        projectId: "59ba0228712f04a947916abb7db06ab1",
         chains: [1, 56, 137, 42161],
         showQrModal: true,
         rpcMap: {
