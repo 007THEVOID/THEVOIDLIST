@@ -5,7 +5,7 @@
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
-  background: #f2f2f2; /* smoke white */
+  background: #f2f2f2;
 }
 
 .page {
@@ -37,7 +37,9 @@ h2 {
   gap: 14px;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   width: 100%;
   padding: 14px;
   border-radius: 10px;
@@ -73,25 +75,25 @@ textarea {
 }
 
 label {
- margin-bottom: 5px;
- color: #555;
+  margin-bottom: 5px;
+  color: #555;
 }
 
 button {
- padding: 10px;
- background-color: #6e3fe0;
- color: #fff;
- border: none;
- border-radius: 4px;
- cursor: pointer;
+  padding: 10px;
+  background-color: #6e3fe0;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 button:hover {
- background-color: #5c00b3;
+  background-color: #5c00b3;
 }
 
 /* ============================
-   MODAL BEAUTIFICATION
+   MODALS
    ============================ */
 
 .modal {
@@ -102,7 +104,8 @@ button:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000; /* lowered so WalletConnect modal sits above */
+  z-index: 1000;
+  isolation: isolate; /* ✅ FIX: prevents stacking trap */
   animation: modalFadeIn 0.25s ease-out;
 }
 
@@ -125,7 +128,6 @@ button:hover {
   animation: modalPop 0.25s ease-out forwards;
 }
 
-/* Title / text inside modal */
 .modal-content p {
   margin: 18px 0 24px;
   font-size: 15px;
@@ -133,7 +135,6 @@ button:hover {
   color: #d0d0d0;
 }
 
-/* Close button */
 .close {
   position: absolute;
   top: 14px;
@@ -150,7 +151,6 @@ button:hover {
   transform: rotate(90deg);
 }
 
-/* Modal buttons */
 .modal-content button {
   width: 100%;
   padding: 14px;
@@ -163,7 +163,6 @@ button:hover {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* Primary action */
 #proceedButton {
   background: linear-gradient(135deg, #6e3fe0, #5b2dbd);
   color: #fff;
@@ -176,7 +175,7 @@ button:hover {
 }
 
 /* ============================
-   WALLET BUTTONS WITH ICONS
+   WALLET BUTTONS
    ============================ */
 
 .wallet-btn {
@@ -201,7 +200,6 @@ button:hover {
   transform: translateY(-1px);
 }
 
-/* Icon base */
 .wallet-icon {
   width: 22px;
   height: 22px;
@@ -210,38 +208,38 @@ button:hover {
   background-position: center;
 }
 
-/* MetaMask icon (SVG) */
 .wallet-icon.metamask {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 318.6 318.6'%3E%3Cpath fill='%23E2761B' d='M274.1 35.5l-99.5 73.9 18.5-43.7z'/%3E%3Cpath fill='%23E4761B' d='M44.5 35.5l98.7 74.6-17.6-44.4z'/%3E%3Cpath fill='%23E4761B' d='M238.2 204.8l-26.5 40.5 56.6 15.6 16.3-55.2z'/%3E%3Cpath fill='%23E4761B' d='M34 205.7l16.2 55.2 56.6-15.6-26.5-40.5z'/%3E%3Cpath fill='%23E4761B' d='M103.9 138.1l-15.8 24 56.4 2.5-1.9-60.7z'/%3E%3Cpath fill='%23E4761B' d='M214.7 138.1l-38.6-34.9-1.2 61.4 56.4-2.5z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 318.6 318.6'%3E%3Cpath fill='%23E2761B' d='M274.1 35.5l-99.5 73.9 18.5-43.7z'/%3E%3Cpath fill='%23E4761B' d='M44.5 35.5l98.7 74.6-17.6-44.4z'/%3E%3C/svg%3E");
 }
 
-/* WalletConnect icon (SVG) */
 .wallet-icon.walletconnect {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cpath fill='%233B99FC' d='M100 200c27-27 73-27 100 0l14 14 14-14c27-27 73-27 100 0l36 36-50 50-36-36c-27-27-73-27-100 0l-14 14-14-14c-27-27-73-27-100 0l-36 36-50-50z'/%3E%3C/svg%3E");
 }
 
-.walletconnect-modal__base {
+/* ============================
+   WALLETCONNECT v2 OVERLAY FIX
+   ============================ */
+
+.walletconnect-modal__base,
+#walletconnect-wrapper {
   z-index: 20000 !important;
 }
 
-/* Animations */
+/* ============================
+   ANIMATIONS
+   ============================ */
+
 @keyframes modalFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes modalPop {
-  to {
-    transform: scale(1);
-  }
+  to { transform: scale(1); }
 }
 
 @media (max-width: 600px) {
- .container {
-   padding: 15px;
- }
+  .container {
+    padding: 15px;
+  }
 }
