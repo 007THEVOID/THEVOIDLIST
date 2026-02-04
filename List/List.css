@@ -222,6 +222,11 @@ button:hover {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cpath fill='%233B99FC' d='M100 200c27-27 73-27 100 0l14 14 14-14c27-27 73-27 100 0l36 36-50 50-36-36c-27-27-73-27-100 0l-14 14-14-14c-27-27-73-27-100 0l-36 36-50-50z'/%3E%3C/svg%3E");
 }
 
+.walletconnect-modal__base {
+  z-index: 20000 !important;
+}
+
+
 /* Animations */
 @keyframes modalFadeIn {
   from {
@@ -243,3 +248,4 @@ button:hover {
  padding: 15px;
  }
 }
+
