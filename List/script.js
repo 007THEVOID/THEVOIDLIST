@@ -89,11 +89,11 @@ async function connectWalletConnect() {
     const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle');
 
     wcProvider = await EthereumProvider.init({
-      projectId: "a0e525fa712217527b8314e3a1702645",
+      projectId: "59ba0228712f04a947916abb7db06ab1",
       chains: [1, 56, 137, 42161],
       showQrModal: true,
       rpcMap: {
-        1: "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID",
+        1: "https://mainnet.infura.io/v3/83caa57ba3004ffa91addb7094bac4cc",
         56: "https://bsc-dataseed.binance.org",
         137: "https://polygon-rpc.com",
         42161: "https://arb1.arbitrum.io/rpc"
