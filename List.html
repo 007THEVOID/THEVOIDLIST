@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Token Listing Submission</title>
-  <link rel="stylesheet" href="List/List.css" />
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Crypto Project Listing</title>
+ <link rel="stylesheet" href="List/styles.css">
 </head>
 <body>
-
 <main class="page">
   <form id="projectForm" class="card">
     <h2>Submit Your Project</h2>
@@ -38,35 +37,30 @@
   </form>
 </main>
 
-<!-- Fee Modal -->
-<div id="feeModal" class="modal hidden">
-  <div class="modal-content">
-    <h3>Listing Fee</h3>
-    <p><strong>50 USDT (ERC-20)</strong> required</p>
-    <button id="payBtn" class="btn-primary">Pay</button>
-    <button class="btn-secondary close">Cancel</button>
-  </div>
-</div>
+ <div id="feeModal" class="modal hidden">
+ <div class="modal-content">
+ <span class="close">&times;</span>
+ <p>You need to pay a fee to list your project.</p>
+ <button id="proceedButton">Proceed to Payment</button>
+ </div>
+ </div>
 
-<!-- Wallet Modal -->
-<div id="walletModal" class="modal hidden">
-  <div class="modal-content">
-    <h3>Connect Wallet</h3>
-    <button id="mmBtn" class="btn-primary">Connect MetaMask</button>
-    <button id="wcBtn" class="btn-primary">WalletConnect</button>
-    <button class="btn-secondary close">Close</button>
-  </div>
-</div>
+ <div id="walletModal" class="modal hidden">
+ <div class="modal-content">
+ <span class="close">&times;</span>
+ <p>Select your wallet to pay the fee:</p>
+<button id="metaMaskButton" class="wallet-btn">
+  <span class="wallet-icon metamask"></span>
+  MetaMask
+</button>
 
-<!-- Success Modal -->
-<div id="successModal" class="modal hidden">
-  <div class="modal-content">
-    <h3>Submission Received</h3>
-    <p>Project info received and is under review.</p>
-    <button class="btn-primary close">Done</button>
-  </div>
-</div>
+<button id="walletConnectButton" class="wallet-btn">
+  <span class="wallet-icon walletconnect"></span>
+  WalletConnect
+</button>
+ </div>
+ </div>
 
-<script type="module" src="List/script.js"></script>
+ <script src="List/script.js"></script>
 </body>
 </html>
