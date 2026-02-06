@@ -11,6 +11,9 @@ const proceedButton = document.getElementById('proceedButton');
 const metaMaskButton = document.getElementById('metaMaskButton');
 const walletConnectButton = document.getElementById('walletConnectButton');
 
+let provider, signer, activeProviderType = null;
+
+
 /* ============================
    UI FLOW
    ============================ */
@@ -102,8 +105,6 @@ async function connectWalletConnect() {
 
     const accounts = await wcProvider.enable();
     window.ethereum = wcProvider;
-
-    window.web3 = new Web3(window.ethereum);
 
     provider = new ethers.providers.Web3Provider(wcProvider);
     signer = provider.getSigner();
