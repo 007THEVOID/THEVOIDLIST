@@ -71,7 +71,7 @@ async function connectMetaMask() {
 }
 
 /* ============================
-   WALLETCONNECT (ETHEREUM ONLY + MODAL)
+   WALLETCONNECT v2 (FUNCTIONAL)
    ============================ */
 let wcProvider = null;
 
@@ -83,26 +83,19 @@ async function connectWalletConnect() {
     }
 
     const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle');
-    const { WalletConnectModal } = await import('https://esm.sh/@walletconnect/modal@2.6.0?bundle');
 
     wcProvider = await EthereumProvider.init({
       projectId: "59ba0228712f04a947916abb7db06ab1",
-      chains: [1], // Ethereum mainnet only
-      showQrModal: false // disable default QR modal
-      rpcMap: { 1: "https://mainnet.infura.io/v3/83caa57ba3004ffa91addb7094bac4cc"},
-      metadata: { 
-         name: "Crypto Project Listing", 
-         url: window.location.origin, 
-         }
+      chains: [1],
+      showQrModal: true,
+      rpcMap: {
+        1: "https://mainnet.infura.io/v3/83caa57ba3004ffa91addb7094bac4cc",
+      },
+      metadata: {
+        name: "Crypto Project Listing",
+        url: window.location.origin
+      }
     });
-
-    // Create and open WalletConnect Modal
-    const modal = new WalletConnectModal({
-      projectId: "59ba0228712f04a947916abb7db06ab1",
-      chains: [1]
-    });
-
-    modal.openModal(); // opens wallet list with deep linking
 
     const accounts = await wcProvider.enable();
     window.ethereum = wcProvider;
