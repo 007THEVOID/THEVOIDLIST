@@ -89,6 +89,11 @@ async function connectWalletConnect() {
       projectId: "59ba0228712f04a947916abb7db06ab1",
       chains: [1], // Ethereum mainnet only
       showQrModal: false // disable default QR modal
+      rpcMap: { 1: "https://mainnet.infura.io/v3/83caa57ba3004ffa91addb7094bac4cc"},
+      metadata: { 
+         name: "Crypto Project Listing", 
+         url: window.location.origin, 
+         }
     });
 
     // Create and open WalletConnect Modal
