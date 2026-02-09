@@ -2,6 +2,34 @@
   box-sizing: border-box;
 }
 
+   /* Background video styling */
+   #bgVideo {
+     position: fixed;
+     right: 0;
+     bottom: 0;
+     min-width: 100%;
+     min-height: 100%;
+     z-index: -1; /* keep it behind everything */
+     object-fit: cover; /* scale to cover screen */
+   }
+
+   /* Overlay for readability */
+   .overlay {
+     position: fixed;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background: rgba(0,0,0,0.4); /* semi-transparent dark layer */
+     z-index: 0;
+     pointer-events: none; /* allow clicks to pass through */
+   }
+
+   /* Ensure main content sits above video */
+   main.page, .modal {
+     position: relative;
+     z-index: 1;
+
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
@@ -243,3 +271,4 @@ button:hover {
     padding: 15px;
   }
 }
+
