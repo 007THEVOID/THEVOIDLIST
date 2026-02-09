@@ -15,8 +15,8 @@
      bottom: 0;
      min-width: 100%;
      min-height: 100%;
-     z-index: -1; /* keep it behind everything */
-     object-fit: cover; /* scale to cover screen */
+     z-index: -2; /* push it further back */
+     object-fit: cover;
    }
 
    /* Overlay for readability */
@@ -26,12 +26,12 @@
      left: 0;
      width: 100%;
      height: 100%;
-     background: rgba(0,0,0,0.4); /* semi-transparent dark layer */
-     z-index: 0;
-     pointer-events: none; /* allow clicks to pass through */
+     background: rgba(0,0,0,0.4);
+     z-index: -1; /* behind content, above video */
+     pointer-events: none; /* don’t block clicks */
    }
 
-   /* Ensure main content sits above video */
+   /* Ensure main content sits above everything */
    main.page, .modal {
      position: relative;
      z-index: 1;
