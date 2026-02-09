@@ -26,14 +26,18 @@
    }
 
    /* Ensure main content sits above video */
-   main.page, .modal {
-     position: relative;
-     z-index: 1;
+main.page, .modal { 
+  position: 
+  relative; 
+  z-index: 1; 
+} 
 
 body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  background: #f2f2f2;
+  margin: 0; 
+  font-family: 
+    system-ui, 
+    sans-serif; 
+  background: #f2f2f2; 
 }
 
 .page {
@@ -271,4 +275,5 @@ button:hover {
     padding: 15px;
   }
 }
+
 
