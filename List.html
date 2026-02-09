@@ -19,7 +19,7 @@
      object-fit: cover; /* scale to cover screen */
    }
 
-   /* Optional overlay for readability */
+   /* Overlay for readability */
    .overlay {
      position: fixed;
      top: 0;
@@ -28,7 +28,7 @@
      height: 100%;
      background: rgba(0,0,0,0.4); /* semi-transparent dark layer */
      z-index: 0;
-     pointer-events: none;
+     pointer-events: none; /* allow clicks to pass through */
    }
 
    /* Ensure main content sits above video */
@@ -41,9 +41,10 @@
 <body>
  <!-- Background video -->
  <video autoplay muted loop id="bgVideo">
-   <source src="List/animatealpha.mp4" type="video/mp4">
+   <source src="List/background.mp4" type="video/mp4">
    Your browser does not support the video tag.
  </video>
+ <div class="overlay"></div>
 
 <main class="page">
   <form id="projectForm" class="card">
