@@ -1,28 +1,6 @@
 * {
   box-sizing: border-box;
 }
-#bgVideo {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  min-width: 100%;
-  min-height: 100%;
-  z-index: -1; /* ensures it stays behind your content */
-  object-fit: cover; /* scales video to cover the screen */
-}
-   .overlay {
-     position: fixed;
-     top: 0;
-     left: 0;
-     width: 100%;
-     height: 100%;
-     background: rgba(0,0,0,0.4); /* semi-transparent dark layer */
-     z-index: 0;
-   }
-   main.page, .modal {
-     position: relative;
-     z-index: 1;
-   }
 body {
   margin: 0; 
   font-family: 
@@ -125,6 +103,8 @@ button:hover {
 
 .modal {
   position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
   inset: 0;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(6px);
@@ -133,6 +113,7 @@ button:hover {
   justify-content: center;
   z-index: 1000;
   isolation: isolate; /* ✅ FIX: prevents stacking trap */
+  padding: 1rem; border-radius: 8px;
   animation: modalFadeIn 0.25s ease-out;
 }
 
@@ -270,6 +251,7 @@ button:hover {
     padding: 15px;
   }
 }
+
 
 
 
