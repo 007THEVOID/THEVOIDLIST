@@ -1,6 +1,15 @@
 * {
   box-sizing: border-box;
 }
+#bgVideo {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+  z-index: -1; /* ensures it stays behind your content */
+  object-fit: cover; /* scales video to cover the screen */
+}
 body {
   margin: 0; 
   font-family: 
@@ -244,6 +253,7 @@ button:hover {
     padding: 15px;
   }
 }
+
 
 
 
