@@ -101,15 +101,17 @@ button:hover {
    MODALS
    ============================ */
 
-.modal { 
-position: fixed; inset: 0; /* full screen */ 
-background: rgba(0, 0, 0, 0.75); 
-backdrop-filter: blur(6px); 
-display: flex; 
-align-items: center; 
-justify-content: center; 
-z-index: 1000; 
-animation: modalFadeIn 0.25s ease-out;
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  isolation: isolate; /* ✅ FIX: prevents stacking trap */
+  animation: modalFadeIn 0.25s ease-out;
 }
 
 .modal.hidden {
@@ -246,6 +248,7 @@ animation: modalFadeIn 0.25s ease-out;
     padding: 15px;
   }
 }
+
 
 
 
