@@ -10,6 +10,19 @@
   z-index: -1; /* ensures it stays behind your content */
   object-fit: cover; /* scales video to cover the screen */
 }
+   .overlay {
+     position: fixed;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background: rgba(0,0,0,0.4); /* semi-transparent dark layer */
+     z-index: 0;
+   }
+   main.page, .modal {
+     position: relative;
+     z-index: 1;
+   }
 body {
   margin: 0; 
   font-family: 
@@ -253,6 +266,7 @@ button:hover {
     padding: 15px;
   }
 }
+
 
 
 
