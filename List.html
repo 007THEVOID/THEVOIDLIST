@@ -7,61 +7,93 @@
  <link rel="stylesheet" href="List/List.css">
  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.4/dist/web3.min.js"></script>
+ <style>
+   /* Background video styling */
+   #bgVideo {
+     position: fixed;
+     right: 0;
+     bottom: 0;
+     min-width: 100%;
+     min-height: 100%;
+     z-index: -1; /* keep it behind everything */
+     object-fit: cover; /* scale to cover screen */
+   }
+
+   /* Optional overlay for readability */
+   .overlay {
+     position: fixed;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background: rgba(0,0,0,0.4); /* semi-transparent dark layer */
+     z-index: 0;
+   }
+
+   /* Ensure main content sits above video */
+   .page, .modal {
+     position: relative;
+     z-index: 1;
+   }
+ </style>
 </head>
 <body>
-      <video autoplay muted loop playsinline class="absolute top-0 left-0 w-full h-full object-cover">
-    <source src="List/animatealpha.mp4" type="video/mp4" />
-  </video>
- 
-  <main class="page">
-    <form id="projectForm" class="card">
-      <h2>Submit Your Project</h2>
-      <div class="grid">
-        <input placeholder="Project Name" required />
-        <input placeholder="Project Symbol" required />
-        <select required>
-          <option value="">Select Chain</option>
-          <option>Ethereum</option>
-          <option>BNB Chain</option>
-          <option>Polygon</option>
-          <option>Arbitrum</option>
-        </select>
-        <input placeholder="Contract Address" required />
-        <input placeholder="Total Supply" />
-        <input placeholder="Circulating Supply" />
-      </div>
-      <textarea placeholder="Other necessary information"></textarea>
-      <div class="grid">
-        <input placeholder="Developer Name" required />
-        <input type="email" placeholder="Developer Email" required />
-      </div>
-      <button type="submit" class="btn-primary">Submit</button>
-    </form>
-  </main>
+ <!-- Background video -->
+ <video autoplay muted loop id="bgVideo">
+   <source src="List/animatealpha.mp4" type="video/mp4">
+   Your browser does not support the video tag.
+ </video>
+ <div class="overlay"></div>
 
-  <div id="feeModal" class="modal hidden">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <p>You need to pay a fee to list your project.</p>
-      <button id="proceedButton">Proceed to Payment</button>
+<main class="page">
+  <form id="projectForm" class="card">
+    <h2>Submit Your Project</h2>
+    <div class="grid">
+      <input placeholder="Project Name" required />
+      <input placeholder="Project Symbol" required />
+      <select required>
+        <option value="">Select Chain</option>
+        <option>Ethereum</option>
+        <option>BNB Chain</option>
+        <option>Polygon</option>
+        <option>Arbitrum</option>
+      </select>
+      <input placeholder="Contract Address" required />
+      <input placeholder="Total Supply" />
+      <input placeholder="Circulating Supply" />
     </div>
-  </div>
-
-  <div id="walletModal" class="modal hidden">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <p>Select your wallet to pay the fee:</p>
-      <button id="phantomButton" class="wallet-btn">
-        <span class="wallet-icon phantom"></span>
-        Phantom
-      </button>
-      <button id="walletConnectButton" class="wallet-btn">
-        <span class="wallet-icon walletconnect"></span>
-        WalletConnect
-      </button>
+    <textarea placeholder="Other necessary information"></textarea>
+    <div class="grid">
+      <input placeholder="Developer Name" required />
+      <input type="email" placeholder="Developer Email" required />
     </div>
-  </div>
+    <button type="submit" class="btn-primary">Submit</button>
+  </form>
+</main>
 
-  <script src="List/script.js"></script>
+ <div id="feeModal" class="modal hidden">
+   <div class="modal-content">
+     <span class="close">&times;</span>
+     <p>You need to pay a fee to list your project.</p>
+     <button id="proceedButton">Proceed to Payment</button>
+   </div>
+ </div>
+
+ <div id="walletModal" class="modal hidden">
+   <div class="modal-content">
+     <span class="close">&times;</span>
+     <p>Select your wallet to pay the fee:</p>
+     <button id="metaMaskButton" class="wallet-btn">
+       <span class="wallet-icon metamask"></span>
+       MetaMask
+     </button>
+     <button id="walletConnectButton" class="wallet-btn">
+       <span class="wallet-icon walletconnect"></span>
+       WalletConnect
+     </button>
+   </div>
+ </div>
+
+ <script src="List/script.js"></script>
 </body>
 </html>
