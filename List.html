@@ -8,34 +8,34 @@
  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.4/dist/web3.min.js"></script>
  <style>
-   /* Background video styling */
-   #bgVideo {
-     position: fixed;
-     right: 0;
-     bottom: 0;
-     min-width: 100%;
-     min-height: 100%;
-     z-index: -1; /* keep it behind everything */
-     object-fit: cover; /* scale to cover screen */
-   }
+ #bgVideo {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+  z-index: -2; /* push video far back */
+}
 
-   /* Optional overlay for readability */
-   .overlay {
-     position: fixed;
-     top: 0;
-     left: 0;
-     width: 100%;
-     height: 100%;
-     background: rgba(0,0,0,0.4); /* semi-transparent dark layer */
-     z-index: 0;
-     pointer-events: none; /* allows clicks to pass through */
-   }
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  z-index: -1; /* keep overlay behind content */
+}
 
-   /* Ensure main content sits above video */
-   .page, .modal {
-     position: relative;
-     z-index: 1;
-   }
+.page {
+  position: relative;
+  z-index: 10; /* ensure above overlay */
+}
+
+.modal {
+  position: fixed; /* fixed so it floats above everything */
+  z-index: 20;     /* highest layer */
+}
  </style>
 </head>
 <body>
