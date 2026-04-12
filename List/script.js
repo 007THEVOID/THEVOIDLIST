@@ -164,4 +164,7 @@ async function connectWalletConnect() {
     walletConnectButton.classList.remove('loading');
     walletConnectButton.disabled = false;
   }
+     window.addEventListener('beforeunload', () => {
+    if (wcProvider?.disconnect) wcProvider.disconnect().catch(() => {});
+  });
 }
